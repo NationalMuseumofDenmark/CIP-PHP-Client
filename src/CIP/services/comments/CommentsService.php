@@ -1,6 +1,6 @@
 <?php
 /**
- * @see http://samlinger.natmus.dk/CIP/doc/CIP.html#comments
+ * @see http://crc.canto.com/CIP/doc/CIP.html#comments
  */
 namespace CIP\services\comments;
 class CommentsService extends \CIP\services\BaseService {

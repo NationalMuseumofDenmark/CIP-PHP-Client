@@ -1,6 +1,6 @@
 <?php
 /**
- * @see http://samlinger.natmus.dk/CIP/doc/CIP.html#location
+ * @see http://crc.canto.com/CIP/doc/CIP.html#location
  */
 namespace CIP\services\location;
 class LocationService extends \CIP\services\BaseService {

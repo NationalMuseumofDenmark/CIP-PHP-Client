@@ -1,6 +1,6 @@
 <?php
 /**
- * @see http://samlinger.natmus.dk/CIP/doc/CIP.html#asset
+ * @see http://crc.canto.com/CIP/doc/CIP.html#asset
  */
 namespace CIP\services\asset;
 class AssetService extends \CIP\services\BaseService {

@@ -1,16 +1,11 @@
 <?php
-echo "Simple Test #1 started\n";
+// Getting the version.
+$response = $client->system()->getversion();
+assert(array_key_exists('version', $response));
+assert(count(array_keys($response['version'])) == 5);
 
-// Loading the client library.
-require_once '../src/CIP/CIPClient.php';
+// Check for compatibility (expected versions, etc).
+$client->checkCompatibility();
 
-// Creating a CIP Client.
-$client = new \CIP\CIPClient('http://samlinger.natmus.dk/', 80);
-
-// Listing the operations
-$reponse = $client->system()->getversion();
-assert(array_key_exists('version', $reponse));
-assert(count(array_keys($reponse['version'])) == 5);
-
-$reponse = $client->metadata()->getcatalogs(null, 'user', 'password', 'sa');
-var_dump($reponse);
+//$response = $client->metadata()->getcatalogs(null, 'user', 'password', 'sa');
+//var_dump($response);

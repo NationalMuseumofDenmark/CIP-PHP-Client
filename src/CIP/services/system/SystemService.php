@@ -1,6 +1,6 @@
 <?php
 /**
- * @see http://samlinger.natmus.dk/CIP/doc/CIP.html#system
+ * @see http://crc.canto.com/CIP/doc/CIP.html#system
  */
 namespace CIP\services\system;
 class SystemService extends \CIP\services\BaseService {
