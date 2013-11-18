@@ -4,6 +4,7 @@ class CIPClient {
 
 	const CLIENT_VERSION = '0.1';
 	const SERVER_VERSION = '9.0';
+	const API_VERSION = 4; // 1: CIP 8.5.2 release, 2: CIP 8.6 release, 3: CIP 8.6.1 release, 4: CIP 9.0 release
 	const SERVICE_CLASS_FORMAT = '\%s\services\%s\%sService';
 	const USERAGENT = 'CIP PHP Client v.%s';
 	
@@ -148,6 +149,10 @@ class CIPClient {
 	 */
 	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $http_method = 'POST') {
 		$url = $this->_server . '/CIP/' . $service_name . '/' . $operation_name;
+		
+		if(!array_key_exists('apiversion', $named_parameters)) {
+			$named_parameters['apiversion'] = self::API_VERSION;
+		}
 		
 		if($this->_jsessionid !== null && is_string($this->_jsessionid)) {
 			$url .= ';jsessionid=' . $this->_jsessionid;

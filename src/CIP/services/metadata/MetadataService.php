@@ -20,15 +20,13 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is the list of catalog names.
 	 */
-	public function getcatalogs($serveraddress = null, $user = null, $password = null, $apiversion = null) {
+	public function getcatalogs($serveraddress = null, $user = null, $password = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
 			'serveraddress' => $serveraddress,
 			'user' => $user,
-			'password' => $password,
-			'apiversion' => $apiversion
+			'password' => $password
 		));
 	}
 	
@@ -40,16 +38,14 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is the list of table names.
 	 */
-	public function gettables($catalog, $serveraddress = null, $user = null, $password = null, $catalogname = null, $apiversion = null) {
+	public function gettables($catalog, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
@@ -67,10 +63,9 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is the list of field definitions of the given table. Each field definition contains the type of the field, the field name in the language of the specified locale and the user editable flag. Fields of type Enum also contain a list of possible values which consist of an ID and a name in the given locale.
 	 */
-	public function getlayout($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null, $apiversion = null) {
+	public function getlayout($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'table' => $table,
 			'locale' => $locale,
@@ -78,8 +73,7 @@ class MetadataService extends \CIP\services\BaseService {
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
@@ -111,10 +105,9 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and a list of items with the field values defined in the given view. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter. If no view and no collection are specified then the list of items is just an array of item IDs. If no view but a collection is specified the result just returns the total count and the name of the collection. The item field values or IDs can then be retrieved using the getfieldvalues operation.
 	 */
-	public function search($catalog, $view = null, $quicksearchstring = null, $queryname = null, $querystring = null, $startindex = null, $maxreturned = null, $locale = null, $sortby = null, $collection = null, $combine = null, $table = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null, $apiversion = null) {
+	public function search($catalog, $view = null, $quicksearchstring = null, $queryname = null, $querystring = null, $startindex = null, $maxreturned = null, $locale = null, $sortby = null, $collection = null, $combine = null, $table = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'quicksearchstring' => $quicksearchstring,
 			'queryname' => $queryname,
@@ -130,8 +123,7 @@ class MetadataService extends \CIP\services\BaseService {
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
@@ -143,15 +135,13 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $table You may want to specify the table to which the filter should be assigned. The default is "AssetRecords".
 	 * @param string|null $queryname The name of a query defined in the CIP configuration file. The defined query is either one that is preset in the DAM system or is configured using a query string with placeholders. See the configuration file section for details on how to define queries.
 	 * @param string|null $querystring The complete query string as expected by the DAM system. You need to make sure all special characters are correctly escaped if you want to pass this parameter in an HTTP request URL. It is recommended to pass the parameter in the body of the request instead.
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
-	public function setfilterquery($table = null, $queryname = null, $querystring = null, $apiversion = null) {
+	public function setfilterquery($table = null, $queryname = null, $querystring = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
 			'table' => $table,
 			'queryname' => $queryname,
-			'querystring' => $querystring,
-			'apiversion' => $apiversion
+			'querystring' => $querystring
 		));
 	}
 	
@@ -160,13 +150,11 @@ class MetadataService extends \CIP\services\BaseService {
 	 * You can use this operation to remove user live filter from the CIP session.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_clearfilterquery
 	 * @param string|null $table The name of table for which the stored filter should be removed. The default is "AssetRecords".
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
-	public function clearfilterquery($table = null, $apiversion = null) {
+	public function clearfilterquery($table = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
-			'table' => $table,
-			'apiversion' => $apiversion
+			'table' => $table
 		));
 	}
 
@@ -185,10 +173,9 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
-	public function getfieldvalues_collection($view = null, $collection, $startindex = null, $maxreturned = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null, $apiversion = null) {
+	public function getfieldvalues_collection($view = null, $collection, $startindex = null, $maxreturned = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $view ), array(
 			'collection' => $collection,
 			'startindex' => $startindex,
@@ -198,8 +185,7 @@ class MetadataService extends \CIP\services\BaseService {
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
@@ -221,7 +207,7 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
-	public function getfieldvalues_catalog($catalog, $view = null, $id, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null, $apiversion = null) {
+	public function getfieldvalues_catalog($catalog, $view = null, $id, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $catalog, $view, $id ), array(
 			'table' => $table,
 			'locale' => $locale,
@@ -229,8 +215,7 @@ class MetadataService extends \CIP\services\BaseService {
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
@@ -249,10 +234,9 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
-	public function setfieldvalues($catalog, $view = null) {
+	public function setfieldvalues($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'table' => $table,
 			'locale' => $locale,
@@ -260,17 +244,59 @@ class MetadataService extends \CIP\services\BaseService {
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
-			'catalogname' => $catalogname,
-			'apiversion' => $apiversion
+			'catalogname' => $catalogname
 		));
 	}
 
-	public function createitem() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	// TODO: Implement the possiblity of specifying a request body.
+	/**
+	 * Create a new catalog item and optionally set the metadata fields for it.
+	 * The field values are specified using a JSON structure transferred in the request body of a HTTP POST request.
+	 * @param string $catalog The catalog alias for the catalog for the item to be modified.
+	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
+	 * @param string|null $table The name of a table for the items to be modified. The default is "AssetRecords".
+	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
+	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
+	 * @param string|null $user string The user name for login to the server for later catalog access.
+	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
+	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
+	 * @return mixed The result is returned in JSON format and consists of the ID of the created catalog item.
+	 **/
+	public function createitem($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
+			'table' => $table,
+			'locale' => $locale,
+			'field' => $field,
+			'serveraddress' => $serveraddress,
+			'user' => $user,
+			'password' => $password,
+			'catalogname' => $catalogname
+		));
 	}
 
+	/**
+	 * Get the sub-categories for a given parent category. You can either get the direct sub-categories of the parent only or the whole sub-tree.
+	 * Three options allow specifying the parent category:
+	 * 1. Specify the category by the complete path (use parameter path).
+	 * 2. Specify the category by its ID (use parameter categoryid).
+	 * 3. If neither the path nor categoryid parameter is specified the operation will return the top-level categories.
+	 * The result can be returned as a JSON structure containing metadata field values for the categories or the IDs of the categories can be stored in a named collection of the session.
+	 * When storing the result in a named collection the hierarchical structure of a possible sub-tree will be lost and all IDs will be stored in a flat list.
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param string $collection The name of a collection to save the resulting list of IDs. If you leave the value empty then CIP will create a unique collection name for you and will return this name in the result. This can be used for temporary collection to make sure the name is unique in the session.
+	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters. If no view or fields are specified then the resulting list of items is just an array of item IDs.
+	 * @param string|null $path The complete path of the parent category in the tree starting at the top-level category name. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
+	 * @param number|null $categoryid The ID of the parent category.
+	 * @param string|null $levels This parameter specifies whether you want the result to contain not just the direct sub-categories of the given parent but the whole sub-tree including all categories down to the given level. Possible values are: "1" (Default) Return the direct sub-categories of the given parent category only. "0" Return the requested category id only. "n" (Where “n” is a positive number) Return all the categories underneath the parent category down to the “n” level. They are returned in “depth-first”. The result nests sub-categories inside their parent category item so that the tree structure can be reconstructed. If you specify a collection to store the result the collection will contain the category IDs as a flat list. "all" Return all the categories underneath the parent category down to the bottom level. They are returned in “depth-first”. The result nests sub-categories inside their parent category item so that the tree structure can be reconstructed. If you specify a collection to store the result the collection will contain the category IDs as a flat list.
+	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @return mixed The result is returned in JSON format and consists of the total number of category items returned and a list of items with the field values defined in the given view. The sub-categories are returned as a list with the name subcategories. Empty sub-category arrays are suppressed in the output. If no view and no collection are specified then the format of the result depends on the value of the parameter levels. If only direct sub-categories are returned then the result is just an array of category IDs. If you wanted to get a whole sub-tree then the result is the same as if you would have specified the field “ID” as the only field of the view. If no view but a collection is specified the result just returns the total count and the name of the collection. The item field values or IDs can then be retrieved using the getfieldvalues operation.
+	 */
 	public function getcategories() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
+			'collection' => $collection,
+			'' => ,
+		));
 	}
 
 	public function createcategory() {
