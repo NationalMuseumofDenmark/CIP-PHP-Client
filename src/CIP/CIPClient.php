@@ -14,14 +14,35 @@ class CIPClient {
 	
 	protected $_jsessionid;
 	
+	protected $_dam_serveraddress;
+	protected $_dam_user;
+	protected $_dam_password;
+	protected $_dam_password;
+	
 	/**
 	 * Constructs a client for a CIP webservice.
 	 * @param string $server The base URL of the CIP service.
+	 * @param boolean $autocreate_session Should a session be created right away?
+	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
+	 * @param string|null $user string The user name for login to the server for later catalog access.
+	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 */
-	public function __construct($server) {
+	public function __construct($server, $autocreate_session = true, $dam_serveraddress = null, $dam_user = null, $dam_password = null, $dam_catalogname = null, $locale = null) {
 		// Remove any trailing / from the server.
 		$server = trim($server, '/');
 		$this->_server = $server;
+		// Make sure that the dam credentials are not passed on every request.
+		$this->setDAMCredentials(null, null, null);
+		// Simply open a session with the right data.
+		$this->session()->open(self::API_VERSION, $dam_serveraddress, $dam_user, $dam_password, $dam_catalogname, $locale);
+	}
+	
+	public function __destruct() {
+		if(isset($this->_jsessionid)) {
+			$this->session()->close();
+		}
 	}
 	
 	public static function is_debugging() {
@@ -147,11 +168,21 @@ class CIPClient {
 	 * @throws \Exception If the server fails to respond.
 	 * @return mixed A json decoding of the servers response.
 	 */
-	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $http_method = 'POST') {
+	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $include_dam_credentials = false, $http_method = 'POST') {
 		$url = $this->_server . '/CIP/' . $service_name . '/' . $operation_name;
 		
 		if(!array_key_exists('apiversion', $named_parameters)) {
 			$named_parameters['apiversion'] = self::API_VERSION;
+		}
+		
+		if($include_dam_credentials && empty($named_parameters['serveraddress']) && $this->_dam_serveraddress !== null) {
+			$named_parameters['serveraddress'] = $this->_dam_serveraddress;
+		}
+		if($include_dam_credentials && empty($named_parameters['user']) && $this->_dam_user !== null) {
+			$named_parameters['user'] = $this->_dam_user;
+		}
+		if($include_dam_credentials && empty($named_parameters['password']) && $this->_dam_password !== null) {
+			$named_parameters['password'] = $this->_dam_password;
 		}
 		
 		if($this->_jsessionid !== null && is_string($this->_jsessionid)) {
@@ -214,6 +245,22 @@ class CIPClient {
 		}
 	}
 	
+	/**
+	 * Set the credentials for the DAM to be used.
+	 * @param string $serveraddress
+	 * @param string $user
+	 * @param string $password
+	 */
+	public function setDAMCredentials($serveraddress, $user, $password) {
+		$this->_dam_serveraddress = $serveraddress;
+		$this->_dam_user = $user;
+		$this->_dam_password = $password;
+	}
+	
+	/**
+	 * Perform a compatibility check on the versions of this SDK against the versions of the software running serverside.
+	 * @throws \RuntimeException If the server is running a different version than expected.
+	 */
 	public function checkCompatibility() {
 		$response = $this->system()->getversion();
 		assert(array_key_exists('version', $response));
@@ -225,7 +272,7 @@ class CIPClient {
 	
 	/**
 	 * Make the client remember the jsessionid, set to null to reset.
-	 * @param string $jsessionid
+	 * @param string $jsessionid A session ID returned from a /session/open call to the service.
 	 */
 	public function setSessionID($jsessionid) {
 		$this->_jsessionid = $jsessionid;

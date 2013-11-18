@@ -17,36 +17,23 @@ class MetadataService extends \CIP\services\BaseService {
 	/**
 	 * Return a list of all catalogs that the given user is able to work with.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_getcatalogs
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @return mixed The result is the list of catalog names.
 	 */
-	public function getcatalogs($serveraddress = null, $user = null, $password = null) {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password
-		));
+	public function getcatalogs() {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(), true);
 	}
 	
 	/**
 	 * Return a list of all table names of a catalog.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_gettables
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
-	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result is the list of table names.
 	 */
-	public function gettables($catalog, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function gettables($catalog, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	// TODO: Check that the serialization of the $field is actually working correctly.
@@ -65,16 +52,13 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result is the list of field definitions of the given table. Each field definition contains the type of the field, the field name in the language of the specified locale and the user editable flag. Fields of type Enum also contain a list of possible values which consist of an ID and a name in the given locale.
 	 */
-	public function getlayout($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function getlayout($catalog, $view = null, $table = null, $locale = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'table' => $table,
 			'locale' => $locale,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	// TODO: Add support for _parameters in the URL, this is needed when using the queryname parameter. Check example b) in the documentation.
@@ -101,13 +85,10 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $combine This parameter is only used when using a stored collection (see collection parameter above). It specifies how the result of this search operation is combined with the contents of the collection specified. If not specified the collection is created from this search operation’s result. Supported values: "new" Default, do not use the previous contents of the specified collection but store the result of this search operation in the collection. "narrow" Only keep items in the collection that are also in the result of this search operation. "broaden" Add all items of the result of this search operation to the collection (if not contained already).
 	 * @param string|null $table You may want to specify the table in which the search should be performed. The default is "AssetRecords".
 	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request. Virtual fields (Available since: 8.6.1): {50f54d0a-0ebe-46ce-bf3c-dbb744349650} UID of a virtual field that contains the number of records being assigned to a category. {b46eddc9-dc90-4e31-9474-bee1b9a3fd12} UID of a virtual field that contains the number of records being assigned to a category including its sub-categories. {e85fd04a-7e4f-4718-9879-92c0f22ba892} UID of a virtual field that contains list of names of fields that the current user is allowed to modify.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and a list of items with the field values defined in the given view. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter. If no view and no collection are specified then the list of items is just an array of item IDs. If no view but a collection is specified the result just returns the total count and the name of the collection. The item field values or IDs can then be retrieved using the getfieldvalues operation.
 	 */
-	public function search($catalog, $view = null, $quicksearchstring = null, $queryname = null, $querystring = null, $startindex = null, $maxreturned = null, $locale = null, $sortby = null, $collection = null, $combine = null, $table = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function search($catalog, $view = null, $quicksearchstring = null, $queryname = null, $querystring = null, $startindex = null, $maxreturned = null, $locale = null, $sortby = null, $collection = null, $combine = null, $table = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'quicksearchstring' => $quicksearchstring,
 			'queryname' => $queryname,
@@ -120,11 +101,8 @@ class MetadataService extends \CIP\services\BaseService {
 			'combine' => $combine,
 			'table' => $table,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	/**
@@ -169,24 +147,18 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param integer|null $maxreturned The maximum number of items returned by this operation. You may use this parameter to limit the size of the resulting JSON data. When used together with the startindex parameter you can implement paging through the result list. The default is to return all items starting at the one specified by the startindex parameter. Due to changes being encountered in the catalog this operation may return less than the specified number of items if items in the given range have been deleted from the catalog. However, to do proper paging you should start the next getfieldvalues operation at the index you calculate from the given parameters startindex and maxreturned.
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request. Virtual fields (Available since: 8.6.1): {50f54d0a-0ebe-46ce-bf3c-dbb744349650} UID of a virtual field that contains the number of records being assigned to a category. {b46eddc9-dc90-4e31-9474-bee1b9a3fd12} UID of a virtual field that contains the number of records being assigned to a category including its sub-categories. {e85fd04a-7e4f-4718-9879-92c0f22ba892} UID of a virtual field that contains list of names of fields that the current user is allowed to modify.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
-	public function getfieldvalues_collection($view = null, $collection, $startindex = null, $maxreturned = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function getfieldvalues_collection($view = null, $collection, $startindex = null, $maxreturned = null, $locale = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $view ), array(
 			'collection' => $collection,
 			'startindex' => $startindex,
 			'maxreturned' => $maxreturned,
 			'locale' => $locale,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	/**
@@ -200,23 +172,16 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $table The name of the table to return field values for. The default is "AssetRecords".
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request. Virtual fields (Available since: 8.6.1): {50f54d0a-0ebe-46ce-bf3c-dbb744349650} UID of a virtual field that contains the number of records being assigned to a category. {b46eddc9-dc90-4e31-9474-bee1b9a3fd12} UID of a virtual field that contains the number of records being assigned to a category including its sub-categories. {e85fd04a-7e4f-4718-9879-92c0f22ba892} UID of a virtual field that contains list of names of fields that the current user is allowed to modify.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
-	public function getfieldvalues_catalog($catalog, $view = null, $id, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function getfieldvalues_catalog($catalog, $view = null, $id, $table = null, $locale = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $catalog, $view, $id ), array(
 			'table' => $table,
 			'locale' => $locale,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	// TODO: Implement the possiblity of specifying a request body.
@@ -230,49 +195,38 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param string|null $table The name of a table for the items to be modified. The default is "AssetRecords".
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request. Virtual fields (Available since: 8.6.1): {50f54d0a-0ebe-46ce-bf3c-dbb744349650} UID of a virtual field that contains the number of records being assigned to a category. {b46eddc9-dc90-4e31-9474-bee1b9a3fd12} UID of a virtual field that contains the number of records being assigned to a category including its sub-categories. {e85fd04a-7e4f-4718-9879-92c0f22ba892} UID of a virtual field that contains list of names of fields that the current user is allowed to modify.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
-	public function setfieldvalues($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function setfieldvalues($catalog, $view = null, $table = null, $locale = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'table' => $table,
 			'locale' => $locale,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	// TODO: Implement the possiblity of specifying a request body.
 	/**
 	 * Create a new catalog item and optionally set the metadata fields for it.
 	 * The field values are specified using a JSON structure transferred in the request body of a HTTP POST request.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_createitem
 	 * @param string $catalog The catalog alias for the catalog for the item to be modified.
 	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
 	 * @param string|null $table The name of a table for the items to be modified. The default is "AssetRecords".
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
 	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the ID of the created catalog item.
 	 **/
-	public function createitem($catalog, $view = null, $table = null, $locale = null, $field = null, $serveraddress = null, $user = null, $password = null, $catalogname = null) {
+	public function createitem($catalog, $view = null, $table = null, $locale = null, $field = null, $catalogname = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
 			'table' => $table,
 			'locale' => $locale,
 			'field' => $field,
-			'serveraddress' => $serveraddress,
-			'user' => $user,
-			'password' => $password,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	/**
@@ -283,6 +237,7 @@ class MetadataService extends \CIP\services\BaseService {
 	 * 3. If neither the path nor categoryid parameter is specified the operation will return the top-level categories.
 	 * The result can be returned as a JSON structure containing metadata field values for the categories or the IDs of the categories can be stored in a named collection of the session.
 	 * When storing the result in a named collection the hierarchical structure of a possible sub-tree will be lost and all IDs will be stored in a flat list.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_getcategories
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param string $collection The name of a collection to save the resulting list of IDs. If you leave the value empty then CIP will create a unique collection name for you and will return this name in the result. This can be used for temporary collection to make sure the name is unique in the session.
 	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters. If no view or fields are specified then the resulting list of items is just an array of item IDs.
@@ -290,26 +245,88 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @param number|null $categoryid The ID of the parent category.
 	 * @param string|null $levels This parameter specifies whether you want the result to contain not just the direct sub-categories of the given parent but the whole sub-tree including all categories down to the given level. Possible values are: "1" (Default) Return the direct sub-categories of the given parent category only. "0" Return the requested category id only. "n" (Where “n” is a positive number) Return all the categories underneath the parent category down to the “n” level. They are returned in “depth-first”. The result nests sub-categories inside their parent category item so that the tree structure can be reconstructed. If you specify a collection to store the result the collection will contain the category IDs as a flat list. "all" Return all the categories underneath the parent category down to the bottom level. They are returned in “depth-first”. The result nests sub-categories inside their parent category item so that the tree structure can be reconstructed. If you specify a collection to store the result the collection will contain the category IDs as a flat list.
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the total number of category items returned and a list of items with the field values defined in the given view. The sub-categories are returned as a list with the name subcategories. Empty sub-category arrays are suppressed in the output. If no view and no collection are specified then the format of the result depends on the value of the parameter levels. If only direct sub-categories are returned then the result is just an array of category IDs. If you wanted to get a whole sub-tree then the result is the same as if you would have specified the field “ID” as the only field of the view. If no view but a collection is specified the result just returns the total count and the name of the collection. The item field values or IDs can then be retrieved using the getfieldvalues operation.
 	 */
-	public function getcategories() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
+	public function getcategories($catalog, $collection, $view = null, $path = null, $categoryid = null, $levels = null, $locale = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
 			'collection' => $collection,
-			'' => ,
+			'view' => $view,
+			'path' => $path,
+			'categoryid' => $categoryid,
+			'levels' => $levels,
+			'locale' => $locale,
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * Create a new category as a sub-category of a given other category.
+	 * Three options allow specifying the parent category:
+	 * 1. Specify the parent category by the complete path (use parameter path).
+	 * 2. Specify the parent category by its ID (use parameter categoryid).
+	 * 3. If neither the path nor categoryid parameter is specified the operation will create a top-level category.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_createcategory
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param string $name The name for the newly created category
+	 * @param string|null $path The complete path of the parent category in the tree starting at the top-level category name. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
+	 * @param number|null $categoryid The ID of the parent category.
+	 * @param string|null $ifcategoryexists Specify what to do when the newly created category refers to an existing one: "createwithsamename" (Default) Create another category with the requested name. "returnexistingone" Return category ID of the existing one. "error" Do nothing and return an error instead.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog.
+	 * @return mixed The result is returned in JSON format and consists of the ID of the newly created category.
+	 */
+
+	public function createcategory($catalog, $name, $path = null, $categoryid = null, $ifcategoryexists = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
+			'name' => $name,
+			'path' => $path,
+			'categoryid' => $categoryid,
+			'ifcategoryexists' => $ifcategoryexists,
+			'catalogname' => $catalogname
+		), true);
+	}
+
+	/**
+	 * Assign categories to given catalog item.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_assigntocategories
+	 * @param string $catalog
+	 * @param number $id
+	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @param string[]|null $path The complete path of the categories in the tree starting at the top-level category name to assign an item to. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
+	 * @param number[]|null $categoryid The IDs of the categories to assign an item to.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function assigntocategories($catalog, $id, $locale = null, $path = null, $categoryid = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
+			'locale' => $locale,
+			'path' => $path,
+			'categoryid' => $categoryid,
+			'catalogname' => $catalogname
 		));
 	}
 
-	public function createcategory() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Detach categories from given catalog item.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_detachfromcategories
+	 * @param string $catalog
+	 * @param number $id
+	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @param string[]|null $path The complete path of the categories in the tree starting at the top-level category name to assign an item to. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
+	 * @param number[]|null $categoryid The IDs of the categories to assign an item to.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function detachfromcategories($catalog, $id, $locale = null, $path = null, $categoryid = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
+			'locale' => $locale,
+			'path' => $path,
+			'categoryid' => $categoryid,
+			'catalogname' => $catalogname
+		));
 	}
-
-	public function assigntocategories() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
-	}
-
-	public function detachfromcategories() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
-	}
+	
+	// TODO: Implement from here.
 
 	public function deletecategory() {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
