@@ -151,7 +151,7 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
 	public function getfieldvalues_collection($view = null, $collection, $startindex = null, $maxreturned = null, $locale = null, $field = null, $catalogname = null) {
-		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $view ), array(
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $view ), array(
 			'collection' => $collection,
 			'startindex' => $startindex,
 			'maxreturned' => $maxreturned,
@@ -176,7 +176,7 @@ class MetadataService extends \CIP\services\BaseService {
 	 * @return mixed The result is returned in JSON format and consists of the total number of items returned and an optional list of items with IDs or field values defined in the given view. If no view is specified then the list of items is just an array of item IDs. Since version 4 (CIP 9.0) of the API the value for a field of type "User UID" is returned as a structure containing the user unique ID string as well as a display string. If you want the old behavior of just returning the display string you can specify an older API version using the apiversion named parameter.
 	 **/
 	public function getfieldvalues_catalog($catalog, $view = null, $id, $table = null, $locale = null, $field = null, $catalogname = null) {
-		return $this->_client->call(self::getServiceName(), 'getfieldvalues', array( $catalog, $view, $id ), array(
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view, $id ), array(
 			'table' => $table,
 			'locale' => $locale,
 			'field' => $field,
@@ -289,8 +289,8 @@ class MetadataService extends \CIP\services\BaseService {
 	/**
 	 * Assign categories to given catalog item.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_assigntocategories
-	 * @param string $catalog
-	 * @param number $id
+	 * @param string $catalog The catalog alias for the catalog for the item to be modified.
+	 * @param number $id The ID of the item in the catalog to be assigned to given categories.
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $path The complete path of the categories in the tree starting at the top-level category name to assign an item to. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
 	 * @param number[]|null $categoryid The IDs of the categories to assign an item to.
@@ -303,14 +303,14 @@ class MetadataService extends \CIP\services\BaseService {
 			'path' => $path,
 			'categoryid' => $categoryid,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 
 	/**
 	 * Detach categories from given catalog item.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_detachfromcategories
-	 * @param string $catalog
-	 * @param number $id
+	 * @param string $catalog The catalog alias for the catalog for the item to be modified.
+	 * @param number $id The ID of the item in the catalog to be detached from given categories.
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 * @param string[]|null $path The complete path of the categories in the tree starting at the top-level category name to assign an item to. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
 	 * @param number[]|null $categoryid The IDs of the categories to assign an item to.
@@ -323,33 +323,210 @@ class MetadataService extends \CIP\services\BaseService {
 			'path' => $path,
 			'categoryid' => $categoryid,
 			'catalogname' => $catalogname
-		));
+		), true);
 	}
 	
-	// TODO: Implement from here.
-
-	public function deletecategory() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Delete a given category and all of its sub-categories.
+	 * Two options allow specifying the category to be deleted:
+	 * 1. Specify the category by the complete path (use parameterpath).
+	 * 2. Specify the category by its ID (use parametercategoryid).
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_deletecategory
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param string|null $path The complete path of the category in the tree starting at the top-level category name. The category names for each level are separated by colon. Use double-colon to escape a colon appearing in a category name.
+	 * @param number|null $categoryid The ID of the category to delete.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog.
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function deletecategory($catalog, $path = null, $categoryid = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
+			'path' => $path,
+			'categoryid' => $categoryid,
+			'catalogname' => $catalogname
+		), true);
 	}
 
-	public function getrelatedassets() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Return IDs list of all related assets.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_getrelatedassets
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param number $id The ID of the item in the catalog.
+	 * @param string $relation The relation type - Possible values: contains, iscontainedin, references, isreferencedby, isvariantmasterof, isvariantof, isalternatemaster, isalternateof
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result is a list of IDs
+	 */
+	public function getrelatedassets($catalog, $id, $relation, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id, $relation ), array(
+			'catalogname' => $catalogname
+		), true);
 	}
 
-	public function linkrelatedasset() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Add a new relation to the given other record.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_linkrelatedasset
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param number $id The ID of the item in the catalog.
+	 * @param string $relation The relation type - Possible values: contains, iscontainedin, references, isreferencedby, isvariantmasterof, isvariantof, isalternatemaster, isalternateof
+	 * @param number $otherId The ID of the other item in the catalog.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function linkrelatedasset($catalog, $id, $relation, $otherId, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id, $relation, $otherId ), array(
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * Remove the relation to the given other record.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_unlinkrelatedasset
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param number $id The ID of the item in the catalog.
+	 * @param string $relation The relation type - Possible values: contains, iscontainedin, references, isreferencedby, isvariantmasterof, isvariantof, isalternatemaster, isalternateof
+	 * @param number $otherId The ID of the other item in the catalog.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function unlinkrelatedasset($catalog, $id, $relation, $otherId, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id, $relation, $otherId ), array(
+			'catalogname' => $catalogname
+		), true);
 	}
 
-	public function unlinkrelatedasset() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Retrieve the number of records having a specific date value for each day.
+	 * Based on collection.
+	 * @param string $collection The name of an existing collection in the current session.
+	 * @param number $startdatetime The starting date and time in UTC as the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+	 * @param number $numberofdays The number of days starting at startdatetime.
+	 * @param string[] $field You must select at least one field that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The operation returns a list of integer values, one for each day. The integer specifies the number of records have a field value within the given day. The total number of integer values is the same as the "numberofdays" parameter value.
+	 */
+	public function getfieldstatistics_collection($collection, $startdatetime, $numberofdays, $field, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+			'collection' => $collection,
+			'startdatetime' => $startdatetime,
+			'numberofdays' => $numberofdays,
+			'field' => $field,
+			'catalogname' => $catalogname
+		), true);
 	}
 
-	public function getfieldstatistics() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	/**
+	 * Retrieve the number of records having a specific date value for each day.
+	 * Based on catalog.
+	 * @param string $catalog The catalog alias for the catalog to work with.
+	 * @param string $table The name of the table to return field values for. The default is "AssetRecords".
+	 * @param number $startdatetime The starting date and time in UTC as the number of milliseconds since January 1, 1970, 00:00:00 UTC.
+	 * @param number $numberofdays The number of days starting at startdatetime.
+	 * @param string[] $field You must select at least one field that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The operation returns a list of integer values, one for each day. The integer specifies the number of records have a field value within the given day. The total number of integer values is the same as the "numberofdays" parameter value.
+	 */
+	public function getfieldstatistics_catalog($catalog, $table, $startdatetime, $numberofdays, $field, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array($catalog), array(
+				'table' => $table,
+				'startdatetime' => $startdatetime,
+				'numberofdays' => $numberofdays,
+				'field' => $field,
+				'catalogname' => $catalogname
+		), true);
 	}
 
-	public function sendcollectionlink() {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array());
+	// TODO: Implement the HTTP POST request body.
+	/**
+	 * Send collection link per e-mail
+	 * The ID of the items are specified using a JSON structure transferred in the request body of a HTTP POST request.
+	 * Based on collection
+	 * @param string $collection The name of an existing collection in the current session.
+	 * @param number|null $startindex The index (zero-based) to start including the items. Using this parameter you can page through the result list by starting with 0 and then incrementing by a given number. The default is 0 which returns the items starting with the first one.
+	 * @param number|null $maxreturned The maximum number of items included by this operation. You may use this parameter to limit the size of the resulting collection. When used together with the startindex parameter you can implement paging through the result list. The default is to return all items starting at the one specified by the startindex parameter. Due to changes being encountered in the catalog this operation may return less than the specified number of items if items in the given range have been deleted from the catalog. However, to do proper paging you should start the next getfieldvalues operation at the index you calculate from the given parameters startindex and maxreturned.
+	 * 
+	 * @param string $linkcollection The name used to store a newly created link collection.
+	 * @param string|null $embargodate The link embargo date. Date format is YYYYMMDD (ISO 8601) e.g. 20110520 (20 May 2011)
+	 * @param string $expirationdate The link expiration date. Date format is YYYYMMDD (ISO 8601) e.g. 20110520 (20 May 2011)
+	 * @param string|null $linkpassword The collection link password.
+	 * @param string $linkbaseurl The base URL of the collection link server.
+	 * @param string[]|null $permit Specifies the link collection permissions. Possible values are: "download" Recipients can download assets with the provided asset actions. See also options named parameter. "preview" Recipients can preview assets. "openinfowindow" Recipients can see info window with the metadata. "print" Recipients can print assets.
+	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
+	 * 
+	 * @param string|null $mailfrom The sender e-mail address.
+	 * @param string[] $mailrecipients The list of e-mail recipients. Required to send an e-mail.
+	 * @param string[]|null $mailcc The list of e-mail Cc (carbon copy) recipients.
+	 * @param string[]|null $mailbcc The list of e-mail Bcc (blind carbon copy) recipients.
+	 * @param string|null $mailsubject The subject line of the e-mail message.
+	 * @param string|null $mailbody The body text of the e-mail message.
+	 * 
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function sendcollectionlink_collection($collection, $startindex = null, $maxreturned = null, $linkcollection, $embargodate = null, $expirationdate, $linkpassword = null, $linkbaseurl, $permit = null, $options = null, $mailfrom = null, $mailrecipients, $mailcc = null, $mailbcc = null, $mailsubject = null, $mailbody = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+			'collection' => $collection,
+			'startindex' => $startindex,
+			'maxreturned' => $maxreturned,
+			'linkcollection' => $linkcollection,
+			'embargodate' => $embargodate,
+			'expirationdate' => $expirationdate,
+			'linkpassword' => $linkpassword,
+			'linkbaseurl' => $linkbaseurl,
+			'permit' => $permit,
+			'options' => $options,
+			'mailfrom' => $mailfrom,
+			'mailrecipients' => $mailrecipients,
+			'mailcc' => $mailcc,
+			'mailbcc' => $mailbcc,
+			'mailsubject' => $mailsubject,
+			'mailbody' => $mailbody,
+			'catalogname' => $catalogname
+		));
+	}
+
+	// TODO: Implement the HTTP POST request body.
+	/**
+	 * Send collection link per e-mail
+	 * The ID of the items are specified using a JSON structure transferred in the request body of a HTTP POST request.
+	 * Based on catalog
+	 * @param string $catalog The catalog alias for the catalog to work with.
+	 * @param string|null $table The name of the table to return field values for. The default is "AssetRecords".
+	 * 
+	 * @param string $linkcollection The name used to store a newly created link collection.
+	 * @param string|null $embargodate The link embargo date. Date format is YYYYMMDD (ISO 8601) e.g. 20110520 (20 May 2011)
+	 * @param string $expirationdate The link expiration date. Date format is YYYYMMDD (ISO 8601) e.g. 20110520 (20 May 2011)
+	 * @param string|null $linkpassword The collection link password.
+	 * @param string $linkbaseurl The base URL of the collection link server.
+	 * @param string[]|null $permit Specifies the link collection permissions. Possible values are: "download" Recipients can download assets with the provided asset actions. See also options named parameter. "preview" Recipients can preview assets. "openinfowindow" Recipients can see info window with the metadata. "print" Recipients can print assets.
+	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
+	 * 
+	 * @param string|null $mailfrom The sender e-mail address.
+	 * @param string[] $mailrecipients The list of e-mail recipients. Required to send an e-mail.
+	 * @param string[]|null $mailcc The list of e-mail Cc (carbon copy) recipients.
+	 * @param string[]|null $mailbcc The list of e-mail Bcc (blind carbon copy) recipients.
+	 * @param string|null $mailsubject The subject line of the e-mail message.
+	 * @param string|null $mailbody The body text of the e-mail message.
+	 * 
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function sendcollectionlink_catalog($catalog, $table = null, $startindex = null, $maxreturned = null, $linkcollection, $embargodate = null, $expirationdate, $linkpassword = null, $linkbaseurl, $permit = null, $options = null, $mailfrom = null, $mailrecipients, $mailcc = null, $mailbcc = null, $mailsubject = null, $mailbody = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog ), array(
+			'table' => $table,
+			'linkcollection' => $linkcollection,
+			'embargodate' => $embargodate,
+			'expirationdate' => $expirationdate,
+			'linkpassword' => $linkpassword,
+			'linkbaseurl' => $linkbaseurl,
+			'permit' => $permit,
+			'options' => $options,
+			'mailfrom' => $mailfrom,
+			'mailrecipients' => $mailrecipients,
+			'mailcc' => $mailcc,
+			'mailbcc' => $mailbcc,
+			'mailsubject' => $mailsubject,
+			'mailbody' => $mailbody,
+			'catalogname' => $catalogname
+		));
 	}
 	
 }

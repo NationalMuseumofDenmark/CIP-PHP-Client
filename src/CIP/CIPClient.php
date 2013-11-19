@@ -17,7 +17,6 @@ class CIPClient {
 	protected $_dam_serveraddress;
 	protected $_dam_user;
 	protected $_dam_password;
-	protected $_dam_password;
 	
 	/**
 	 * Constructs a client for a CIP webservice.
@@ -29,14 +28,13 @@ class CIPClient {
 	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 */
-	public function __construct($server, $autocreate_session = true, $dam_serveraddress = null, $dam_user = null, $dam_password = null, $dam_catalogname = null, $locale = null) {
+	public function __construct($server, $autocreate_session = true, $dam_serveraddress = null, $dam_user = null, $dam_password = null) {
 		// Remove any trailing / from the server.
 		$server = trim($server, '/');
 		$this->_server = $server;
-		// Make sure that the dam credentials are not passed on every request.
-		$this->setDAMCredentials(null, null, null);
-		// Simply open a session with the right data.
-		$this->session()->open(self::API_VERSION, $dam_serveraddress, $dam_user, $dam_password, $dam_catalogname, $locale);
+		// Make sure that the dam credentials are not passed on every request,
+		// set the DAM credentials via opening a session.
+		$this->setDAMCredentials($dam_serveraddress, $dam_user, $dam_password, true);
 	}
 	
 	public function __destruct() {
@@ -169,6 +167,12 @@ class CIPClient {
 	 * @return mixed A json decoding of the servers response.
 	 */
 	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $include_dam_credentials = false, $http_method = 'POST') {
+		// First - strip off any variant prefix from the $operation_name.
+		$operation_name_underscore_index = strpos($operation_name, '_');
+		if($operation_name_underscore_index !== false) {
+			$operation_name = substr($operation_name, 0, $operation_name_underscore_index);
+		}
+		
 		$url = $this->_server . '/CIP/' . $service_name . '/' . $operation_name;
 		
 		if(!array_key_exists('apiversion', $named_parameters)) {
@@ -192,14 +196,17 @@ class CIPClient {
 		if(count($path_parameters) > 0) {
 			$url .= '/' . implode('/', $path_parameters);
 		}
+		
+		if(self::is_debugging()) {
+			echo "Calling the service on: $url?";
+			echo http_build_query($named_parameters);
+			echo "\n";
+		}
+		
 		if(count($named_parameters) > 0) {
 			$named_parameters = http_build_query($named_parameters);
 		} else {
 			$named_parameters = '';
-		}
-		
-		if(self::is_debugging()) {
-			echo "Calling the service on: $url\n";
 		}
 		
 		// If the curl handle has not been initialized, it will be.
@@ -251,10 +258,14 @@ class CIPClient {
 	 * @param string $user
 	 * @param string $password
 	 */
-	public function setDAMCredentials($serveraddress, $user, $password) {
-		$this->_dam_serveraddress = $serveraddress;
-		$this->_dam_user = $user;
-		$this->_dam_password = $password;
+	public function setDAMCredentials($serveraddress, $user, $password, $via_session = true) {
+		if($via_session) {
+			$this->session()->open(self::API_VERSION, $serveraddress, $user, $password, null, null, true);
+		} else {
+			$this->_dam_serveraddress = $serveraddress;
+			$this->_dam_user = $user;
+			$this->_dam_password = $password;
+		}
 	}
 	
 	/**
