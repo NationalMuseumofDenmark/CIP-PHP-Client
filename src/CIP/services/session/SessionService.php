@@ -17,7 +17,6 @@ class SessionService extends \CIP\services\BaseService {
 	 * The first option is more flexible as it can also handle user names and passwords that contain colon (":") characters. 
 	 * If you want to hide the credentials and encrypt all communication you should configure your web application server to use SSL. 
 	 * Then each URL you call needs to start with “https” instead of “http.”
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
 	 * @param string|null $user string The user name for login to the server for later catalog access.
 	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
@@ -26,9 +25,8 @@ class SessionService extends \CIP\services\BaseService {
 	 * @param boolean|null $remember_session Should the client remember this session for subsequent calls to the service? Default: true.
 	 * @return mixed The result contains the session ID of the newly created session. The session ID is returned as a HTTP cookie "jsessionid" as well as in the response text.
 	 */
-	public function open($apiversion = null, $serveraddress = null, $user = null, $password = null, $catalogname = null, $locale = null, $remember_session = true) {
+	public function open($serveraddress = null, $user = null, $password = null, $catalogname = null, $locale = null, $remember_session = true) {
 		$response = $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
-			'apiversion' => $apiversion,
 			'serveraddress' => $serveraddress,
 			'user' => $user,
 			'password' => $password,
@@ -45,13 +43,10 @@ class SessionService extends \CIP\services\BaseService {
 	 * Close an existing session at the server. 
 	 * Any subsequent request for this session will fail after this operation is executed. 
 	 * You need to provide a session ID (see section about session handling above) for this operation.
-	 * @param integer|null $apiversion Determine which API version should be used for the request processing. It's guarantee backwards compatibility for future releases. An application created to work with a given API version will continue to work with that same API version. If this parameter is not present then the newer API version will be used. 1 = CIP 8.5.2, 2 = CIP 8.6, 3 = CIP 8.6.1, 4 = CIP 9.0
 	 * @return mixed None. Returns true on success.
 	 */
-	public function close($apiversion = null) {
-		$response = $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
-			'apiversion' => $apiversion
-		));
+	public function close() {
+		$response = $this->_client->call(self::getServiceName(), __FUNCTION__, array( ), array( ));
 		// Make the client forget the session id.
 		$this->_client->setSessionID(null);
 		return $response;
