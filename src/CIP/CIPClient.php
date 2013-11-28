@@ -158,6 +158,7 @@ class CIPClient {
 	
 	/**
 	 * Process a call to the CIP server.
+	 * TODO: Implement the handling of a binary response from the webservice, images etc.
 	 * @param string $service_name
 	 * @param string $operation_name
 	 * @param string[]|null $path_parameters
