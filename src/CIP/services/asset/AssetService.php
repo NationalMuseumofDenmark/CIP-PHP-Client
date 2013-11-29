@@ -1,5 +1,6 @@
 <?php
 /**
+ * The Asset service offers operations that work with the original assets: importing, downloading, checking out, checking in, deleting an asset.
  * @see http://crc.canto.com/CIP/doc/CIP.html#asset
  */
 namespace CIP\services\asset;
@@ -133,14 +134,72 @@ class AssetService extends \CIP\services\BaseService {
 	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
 	 * @param string|null $comment The comment for this new version of the asset. This comment is available as version-specific metadata.
 	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
-	 * @return mixed The result is returned in JSON format and consists of the ID of the imported asset.
+	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
-	public function checkin($catalog, $id = null, $location = null, $options = null, $locale = null, $field = null, $catalogname = null) {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $view ), array(
+	public function checkin($catalog, $id, $location = null, $options = null, $comment = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
 			'location' => $location,
 			'options' => $options,
-			'locale' => $locale,
-			'field' => $field,
+			'comment' => $comment,
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * If you have checked out an asset using the asset/checkout operation you can undo this action by calling this operation.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_undocheckout
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function undocheckout($catalog, $id, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * You can returns an asset to the previous version by using rollback operation.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_rollback
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
+	 * @param integer $version The version number of the asset to be restored as newer one. You can retrieve the list of available versions for an asset using the asset/getversions operation.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result is the newly created version number given to the restored (rolled back) asset.
+	 */
+	public function rollback($catalog, $id, $version, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id, $version ), array(
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * You can retrieve the list of available versions for a DAM item.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_getversions
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result is returned in JSON format and consists of the item id and a list of available versions described by checkin user, checkin comment, checkin date and version number.
+	 */
+	public function getversions($catalog, $id, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
+			'catalogname' => $catalogname
+		), true);
+	}
+	
+	/**
+	 * Delete an item and optionally also the asset that is referenced by this item.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_delete
+	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
+	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
+	 * @param string|null $withasset This parameter specifies whether you want to delete not just the item but the asset as well. Possible values are: "false" (Default) - Only the item will be deleted. The corresponding asset will be preserved. "true" The item as well as the corresponding asset will be deleted.
+	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function delete($catalog, $id, $withasset = null, $catalogname = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
+			'withasset' => $withasset,
 			'catalogname' => $catalogname
 		), true);
 	}
