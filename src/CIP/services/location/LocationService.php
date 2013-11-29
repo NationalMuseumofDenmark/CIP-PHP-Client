@@ -25,7 +25,7 @@ class LocationService extends \CIP\services\BaseService {
 	 * @param string $location The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @return mixed A list of locations for all files/directories contained.
 	 */
-	public function get($catalog, $id, $catalogname = null) {
+	public function get($location) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
 			'location' => $location
 		), true);
@@ -38,24 +38,61 @@ class LocationService extends \CIP\services\BaseService {
 	 * @param string $location The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @return mixed The newly created location.
 	 */
-	public function createdir($catalog, $id, $catalogname = null) {
+	public function createdir($location = null) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
 			'location' => $location
 		), true);
 	}
 	
-	// TODO: This might not be completely implemented.
 	/**
 	 * Copy a file or directory.
 	 * The user specified in the request needs the server permission $CanCopyFiles to perform this action.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#location_copy
 	 * @param string $from The location path of the file or directory to copy. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * 
-	 * @return mixed The newly created location.
+	 * @param string $to The location path for the destination. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string. If "to" is an existing directory then the "from" file/dir is copied there. If "to" does not exist then the "from" file/directory is copied to the parent of "to" which needs to be an existent dir and the copy gets the name specified in "to". If "to" is an existing file and "from" is a file too the parameter ifexists controls how to handle this case.
+	 * @param string|null $ifexists Specify what to do when the parameter to refers to an existing file or directory. Possible values are: "newuniquename" (Default) Generate a unique name for the target and copy the source there. "replace" Replace the existing file or directory with the copied one. "error" Do nothing and return an error instead.
+	 * @return mixed The location of the copy.
 	 */
-	public function copy($catalog, $id, $catalogname = null) {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array( $catalog, $id ), array(
-			'catalogname' => $catalogname
+	public function copy($from, $to, $ifexists = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+			'from' => $from,
+			'to' => $to,
+			'ifexists' => $ifexists
 		), true);
 	}
+	
+	/**
+	 * Move a file or directory. This works the same as first calling location/copy and then location/delete but is just faster because it does it in one step. 
+	 * This can also be used to rename a file or directory.
+	 * The user specified in the request needs the server permission $CanMoveFiles to perform this action.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#location_move
+	 * @param string $from The location path of the file or directory to copy. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string $to The location path for the destination. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string. If "to" is an existing directory then the "from" file/dir is copied there. If "to" does not exist then the "from" file/directory is copied to the parent of "to" which needs to be an existent dir and the copy gets the name specified in "to". If "to" is an existing file and "from" is a file too the parameter ifexists controls how to handle this case.
+	 * @param string|null $ifexists Specify what to do when the parameter to refers to an existing file or directory. Possible values are: "newuniquename" (Default) Generate a unique name for the target and move the source there. "replace" Replace the existing file or directory with the moved one. "error" Do nothing and return an error instead.
+	 * @return mixed The location of the moved file / directory.
+	 */
+	public function move($from, $to, $ifexists = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+			'from' => $from,
+			'to' => $to,
+			'ifexists' => $ifexists
+		), true);
+	}
+	
+	/**
+	 * Delete a file or directory
+	 * The user specified in the request needs the server permission $CanDeleteFiles to perform this action.
+	 * @see http://crc.canto.com/CIP/doc/CIP.html#location_delete
+	 * @param string $location The complete location path of the directory or file to delete. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string|null $recursive When deleting a directory this parameter controls whether to delete all the contents of the directory also. Possible values are: "false" (Default) Only delete the directory if it is empty. Return an error otherwise. "true" Delete the specified directory and all of its contents.
+	 * @return mixed The result does not have any contents. Returns true on success.
+	 */
+	public function delete($location, $recursive = null) {
+		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+			'from' => $from,
+			'to' => $to,
+			'ifexists' => $ifexists
+		), true);
+	}
+	
 }
