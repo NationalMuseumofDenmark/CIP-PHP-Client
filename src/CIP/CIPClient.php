@@ -329,7 +329,9 @@ class CIPClient {
 			// A void response should simply return true.
 			return true;
 		} else {
-			$result = json_decode($response, true);
+			$response_decoded = json_decode($response, true);
+			$this->applyValueFiltersOnResponse($service_name, $operation_name, $response_decoded);
+			/*
 			// Apply filters.
 			array_walk_recursive($result, function(&$value, &$key, $userdata) {
 				$userdata['this']->applyValueFilters($userdata['service'], $userdata['operation'], $key, $value);
@@ -338,7 +340,8 @@ class CIPClient {
 				'service' => $service_name,
 				'operation' => $operation_name
 			));
-			return $result;
+			*/
+			return $response_decoded;
 		}
 	}
 	
@@ -398,10 +401,15 @@ class CIPClient {
 		}
 	}
 	
-	public function applyValueFilters( $service, $action, &$key, &$value ) {
+	public function applyValueFiltersOnResponse( $service, $operation, &$response ) {
+		// TODO: Loop through the $response and call applyValueFilters on every key / value pair.
+		throw new \Exception("Not implemented");
+	}
+	
+	public function applyValueFilters( $service, $operation, &$key, &$value ) {
 		foreach($this->_valueFilters as $filter) {
 			// $key and $value are passed by referance.
-			$filter->apply( $service, $action, $key, $value );
+			$filter->apply( $service, $operation, $key, $value );
 		}
 	}
 	
