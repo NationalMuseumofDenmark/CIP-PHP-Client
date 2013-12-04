@@ -17,12 +17,12 @@ class SessionService extends \CIP\services\BaseService {
 	 * The first option is more flexible as it can also handle user names and passwords that contain colon (":") characters. 
 	 * If you want to hide the credentials and encrypt all communication you should configure your web application server to use SSL. 
 	 * Then each URL you call needs to start with “https” instead of “http.”
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
-	 * @param string|null $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
-	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for later catalog metadata fields access.
-	 * @param boolean|null $remember_session Should the client remember this session for subsequent calls to the service? Default: true.
+	 * @param string[optional] $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
+	 * @param string[optional] $user string The user name for login to the server for later catalog access.
+	 * @param string[optional] $password string The password for login to the server. The user’s password to be used for later catalog access
+	 * @param string[optional] $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
+	 * @param string[optional] $locale The two-letter language code (ISO 639-1) to be used for later catalog metadata fields access.
+	 * @param boolean[optional] $remember_session Should the client remember this session for subsequent calls to the service? Default: true.
 	 * @return mixed The result contains the session ID of the newly created session. The session ID is returned as a HTTP cookie "jsessionid" as well as in the response text.
 	 */
 	public function open($serveraddress = null, $user = null, $password = null, $catalogname = null, $locale = null, $remember_session = true) {

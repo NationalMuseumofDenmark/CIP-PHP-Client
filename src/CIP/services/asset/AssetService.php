@@ -15,12 +15,12 @@ class AssetService extends \CIP\services\BaseService {
 	 * If you want to both upload the asset with the request and set field values the request body needs to have a MIME type of multipart/form-data. This is compatible with the way web browsers upload files to a web server. The asset contents are then embedded in the request body as a part named "file". If you also want to set metadata field values you also include a part named "fields" which contains the JSON structure with the field values similar to the way the metadata/setfieldvalues operation accepts them.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_import
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
-	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
-	 * @param string|null $location This is either the asset name if the request body only consists of the asset contants or the location path to an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
-	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the "user.language" Java VM parameter when starting the web application server).
-	 * @param string[string]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
+	 * @param string[optional] $location This is either the asset name if the request body only consists of the asset contants or the location path to an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string[optional] $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
+	 * @param string[optional] $locale The two-letter language code (ISO 639-1) to be used for the metadata field values for the result. This parameter affects the way language-dependent metadata values are returned. For example you can specify “fr” to return all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the "user.language" Java VM parameter when starting the web application server).
+	 * @param string[string][optional] $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the ID of the imported asset.
 	 */
 	public function import($catalog, $view = null, $location = null, $options = null, $locale = null, $field = null, $catalogname = null) {
@@ -41,12 +41,12 @@ class AssetService extends \CIP\services\BaseService {
 	 * 3. Upload the asset with the HTTP request. This is done by putting the asset contents into the request body and using the HTTP POST method. This request the body only contains the asset contents.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_update
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
-	 * @param string|null $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
+	 * @param string[optional] $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $location The location path for an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
-	 * @param string[string]|null $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $location The location path for an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string[optional] $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
+	 * @param string[string][optional] $field You can select the fields that should be returned by specifying one or more of these named parameters. The value for this parameter has the same format as the field specification in the view configuration. For the Cumulus DAM system it is sometimes preferable to specify the field using the field UID and optionally the field name and an alias name. When also specifying a configured view as a path parameter you can extend the view fields with the ones specified in the request. By configuring an empty view you can let CIP return only the fields that are specified in the request.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
 	public function update($catalog, $view = null, $id, $location = null, $options = null, $field = null, $catalogname = null) {
@@ -66,19 +66,19 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_download
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param integer|null $version The version of the asset to download. The default is to download the latest version.
-	 * @param string|null $options The name of a configured option set that contains the conversion options to be applied before downloading. The configuration contains the parameters for the actual conversion.
-	 * @param string|null $location The location path of a folder to store the result. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * @param string|null $name The name of the file to store the result as. This parameter is only used when a "location" is specified.
-	 * @param string|null $ifexists Specify what to do when the result refers to an existing file or directory in the location: "newuniquename" (Default) Generate a unique name for the result. "replace" Replace the existing file or directory with the result. "error" Do nothing and return an error instead.
-	 * @param string|null $mailfrom The sender e-mail address.
-	 * @param string[]|null $mailrecipients The list of e-mail recipients. Required to send an e-mail.
-	 * @param string[]|null $mailcc The list of e-mail Cc (carbon copy) recipients.
-	 * @param string[]|null $mailbcc The list of e-mail Cc (carbon copy) recipients.
-	 * @param string|null $mailsubject The subject line of the e-mail message.
-	 * @param string|null $mailbody The body text of the e-mail message.
-	 * @param string|null $cachecontrol Allow to control client cache policy switch for CIP operation results. This could lead to better performance in case the browser can use cached images. "no-cache" (Default) - Switch off caching of images in the browser. "clientdefault" Allow caching of images. The cache lifetime depend on constraint com.canto.cip.constraint.clientcachemaxage configuration. The default value is 3600 seconds (1 hour). See configuration section for details.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param integer[optional] $version The version of the asset to download. The default is to download the latest version.
+	 * @param string[optional] $options The name of a configured option set that contains the conversion options to be applied before downloading. The configuration contains the parameters for the actual conversion.
+	 * @param string[optional] $location The location path of a folder to store the result. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string[optional] $name The name of the file to store the result as. This parameter is only used when a "location" is specified.
+	 * @param string[optional] $ifexists Specify what to do when the result refers to an existing file or directory in the location: "newuniquename" (Default) Generate a unique name for the result. "replace" Replace the existing file or directory with the result. "error" Do nothing and return an error instead.
+	 * @param string[optional] $mailfrom The sender e-mail address.
+	 * @param string[][optional] $mailrecipients The list of e-mail recipients. Required to send an e-mail.
+	 * @param string[][optional] $mailcc The list of e-mail Cc (carbon copy) recipients.
+	 * @param string[][optional] $mailbcc The list of e-mail Cc (carbon copy) recipients.
+	 * @param string[optional] $mailsubject The subject line of the e-mail message.
+	 * @param string[optional] $mailbody The body text of the e-mail message.
+	 * @param string[optional] $cachecontrol Allow to control client cache policy switch for CIP operation results. This could lead to better performance in case the browser can use cached images. "no-cache" (Default) - Switch off caching of images in the browser. "clientdefault" Allow caching of images. The cache lifetime depend on constraint com.canto.cip.constraint.clientcachemaxage configuration. The default value is 3600 seconds (1 hour). See configuration section for details.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed If you specified a location to store the resulting asset then the response body contains JSON data specifying the exact location. If you specified e-mail parameters to send asset as an e-mail attachment then the response body contains JSON data specifying the name of the sent file. If you did not specify either a location or an e-mail then the response body contains the resulting asset contents.
 	 */
 	public function download($catalog, $id, $version = null, $options = null, $location = null, $name = null, $ifexists = null, $mailfrom = null, $mailrecipients = null, $mailcc = null, $mailbcc = null, $mailsubject = null, $mailbody = null, $cachecontrol = null, $catalogname = null) {
@@ -106,10 +106,10 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_checkout
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $location The location path of a folder to store the result. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * @param string|null $name The name of the file to store the result as. This parameter is only used when a "location" is specified.
-	 * @param string|null $ifexists Specify what to do when the result refers to an existing file or directory in the location. "newuniquename" (Default) Generate a unique name for the result. "replace" Replace the existing file or directory with the result. "error" Do nothing and return an error instead.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $location The location path of a folder to store the result. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string[optional] $name The name of the file to store the result as. This parameter is only used when a "location" is specified.
+	 * @param string[optional] $ifexists Specify what to do when the result refers to an existing file or directory in the location. "newuniquename" (Default) Generate a unique name for the result. "replace" Replace the existing file or directory with the result. "error" Do nothing and return an error instead.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed If you specified a location to store the resulting asset then the response body contains JSON data specifying the exact location. If you did not specify a location then the response body contains the resulting asset contents.
 	 */
 	public function checkout($catalog, $id, $location = null, $name = null, $ifexists = null, $catalogname = null) {
@@ -130,10 +130,10 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_checkin
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $location The location path for an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
-	 * @param string|null $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
-	 * @param string|null $comment The comment for this new version of the asset. This comment is available as version-specific metadata.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $location The location path for an existing asset. The path is either a complete URL that starts with a URL protocol like “ftp”, “sftp”, “ftps”, “file” or is based on a location defined in the configuration file. By using a configured location and a relative path you can hide details such as FTP passwords from the user of the service. When executed the location name is replaced with the configured location string.
+	 * @param string[optional] $options The name of an options set defined in the configuration file. The exact options are DAM system dependent.
+	 * @param string[optional] $comment The comment for this new version of the asset. This comment is available as version-specific metadata.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
 	public function checkin($catalog, $id, $location = null, $options = null, $comment = null, $catalogname = null) {
@@ -150,7 +150,7 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_undocheckout
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
 	public function undocheckout($catalog, $id, $catalogname = null) {
@@ -165,7 +165,7 @@ class AssetService extends \CIP\services\BaseService {
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
 	 * @param integer $version The version number of the asset to be restored as newer one. You can retrieve the list of available versions for an asset using the asset/getversions operation.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result is the newly created version number given to the restored (rolled back) asset.
 	 */
 	public function rollback($catalog, $id, $version, $catalogname = null) {
@@ -179,7 +179,7 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_getversions
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result is returned in JSON format and consists of the item id and a list of available versions described by checkin user, checkin comment, checkin date and version number.
 	 */
 	public function getversions($catalog, $id, $catalogname = null) {
@@ -193,8 +193,8 @@ class AssetService extends \CIP\services\BaseService {
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#asset_delete
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param integer $id The ID of the asset in the catalog specified by the first path parameter.
-	 * @param string|null $withasset This parameter specifies whether you want to delete not just the item but the asset as well. Possible values are: "false" (Default) - Only the item will be deleted. The corresponding asset will be preserved. "true" The item as well as the corresponding asset will be deleted.
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $withasset This parameter specifies whether you want to delete not just the item but the asset as well. Possible values are: "false" (Default) - Only the item will be deleted. The corresponding asset will be preserved. "true" The item as well as the corresponding asset will be deleted.
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
 	 * @return mixed The result does not have any contents. Returns true on success.
 	 */
 	public function delete($catalog, $id, $withasset = null, $catalogname = null) {

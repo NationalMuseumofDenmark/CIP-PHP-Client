@@ -1,5 +1,6 @@
 <?php
 namespace CIP;
+
 class CIPClient {
 
 	const CLIENT_VERSION = '0.1';
@@ -7,6 +8,8 @@ class CIPClient {
 	const API_VERSION = 4; // 1: CIP 8.5.2 release, 2: CIP 8.6 release, 3: CIP 8.6.1 release, 4: CIP 9.0 release
 	const SERVICE_CLASS_FORMAT = '\%s\services\%s\%sService';
 	const USERAGENT = 'CIP PHP Client v.%s';
+	const CACHE_TTL = 0; // Cached responses live forever.
+	const FILTERS_DIRECTORY = '/filters/';
 	
 	protected $_server;
 	
@@ -22,25 +25,27 @@ class CIPClient {
 	 * Constructs a client for a CIP webservice.
 	 * @param string $server The base URL of the CIP service.
 	 * @param boolean $autocreate_session Should a session be created right away?
-	 * @param string|null $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
-	 * @param string|null $user string The user name for login to the server for later catalog access.
-	 * @param string|null $password string The password for login to the server. The user’s password to be used for later catalog access
-	 * @param string|null $catalogname The DAM system catalog name e.g. Sample Catalog
-	 * @param string|null $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
+	 * @param string[optional] $serveraddress The DAM server IP address for later catalog access. e.g. localhost, 192.168.0.2
+	 * @param string[optional] $user string The user name for login to the server for later catalog access.
+	 * @param string[optional] $password string The password for login to the server. The user’s password to be used for later catalog access
+	 * @param string[optional] $catalogname The DAM system catalog name e.g. Sample Catalog
+	 * @param string[optional] $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 */
-	public function __construct($server, $autocreate_session = true, $dam_serveraddress = null, $dam_user = null, $dam_password = null) {
+	public function __construct($server, $autocreate_session = true, $dam_user = null, $dam_password = null, $dam_serveraddress = null) {
 		// Remove any trailing / from the server.
 		$server = trim($server, '/');
 		$this->_server = $server;
-		// Make sure that the dam credentials are not passed on every request,
-		// set the DAM credentials via opening a session.
-		$this->setDAMCredentials($dam_serveraddress, $dam_user, $dam_password, true);
+		$this->setDAMCredentials($dam_user, $dam_password, $dam_serveraddress, $autocreate_session);
+		// Load all the filters.
+		$this->loadDefaultValueFilters();
 	}
 	
 	public function __destruct() {
+		/*
 		if(isset($this->_jsessionid)) {
 			$this->session()->close();
 		}
+		*/
 	}
 	
 	public static function is_debugging() {
@@ -157,13 +162,54 @@ class CIPClient {
 	}
 	
 	/**
+	 * Should responses from the service be cached on this side?
+	 * @var boolean
+	 */
+	protected $_cache_responses = false;
+	
+	public function cacheResponses($cache_responses = true) {
+		if($cache_responses) {
+			self::ensureAPCCache();
+		}
+		// TODO: Check that APC cache is installed.
+		$this->_cache_responses = $cache_responses;
+	}
+	
+	public function getCacheResponses() {
+		return $this->_cache_responses;
+	}
+	
+	/**
+	 * Should responses from the service be cached on this side?
+	 * @var boolean
+	 */
+	protected $_cache_next_response = false;
+	
+	public function cacheNextResponse() {
+		self::ensureAPCCache();
+		// TODO: Check that APC cache is installed.
+		$this->_cache_next_response = true;
+	}
+	
+	/**
+	 * Ensure that the APC module is installed (used when caching).
+	 * @throws \Exception If it's not.
+	 */
+	protected static function ensureAPCCache() {
+		if(!function_exists('apc_add') || !function_exists('apc_fetch')) {
+			throw new \Exception("The Alternative PHP Cache module is not loaded, please see http://php.net/manual/en/book.apc.php for more information.");
+		}
+	}
+	
+	
+	/**
 	 * Process a call to the CIP server.
 	 * TODO: Implement the handling of a binary response from the webservice, images etc.
 	 * @param string $service_name
 	 * @param string $operation_name
-	 * @param string[]|null $path_parameters
-	 * @param string[string]|null $named_parameters
-	 * @param string|null $http_method POST (default) or GET.
+	 * @param string[][optional] $path_parameters
+	 * @param string[string][optional] $named_parameters
+	 * @param string[optional] $http_method POST (default) or GET.
 	 * @throws \Exception If the server fails to respond.
 	 * @return mixed A json decoding of the servers response.
 	 */
@@ -190,16 +236,20 @@ class CIPClient {
 			$named_parameters['password'] = $this->_dam_password;
 		}
 		
+		if(count($path_parameters) > 0) {
+			// Filter out any parameter without a value.
+			$path_parameters = array_filter($path_parameters, function($path_parameter) {
+				return $path_parameter !== null;
+			});
+			$url .= '/' . implode('/', $path_parameters);
+		}
+		
 		if($this->_jsessionid !== null && is_string($this->_jsessionid)) {
 			$url .= ';jsessionid=' . $this->_jsessionid;
 		}
 		
-		if(count($path_parameters) > 0) {
-			$url .= '/' . implode('/', $path_parameters);
-		}
-		
 		if(self::is_debugging()) {
-			echo "Calling the service on: $url?";
+			echo "Calling CIP: $url?";
 			echo http_build_query($named_parameters);
 			echo "\n";
 		}
@@ -230,17 +280,47 @@ class CIPClient {
 		}
 		
 		curl_setopt($this->_curl_handle, CURLOPT_URL, $url);
-		$response = curl_exec($this->_curl_handle);
+		
+		// Before we execute the request - let's check if we should load it from the cache.
+		if($this->_cache_responses || $this->_cache_next_response) {
+			$cache_key = md5($url . print_r($named_parameters, true));
+			$success = false;
+			// Check if we hace the response in the cache.
+			$cached_response = apc_fetch($cache_key, &$success);
+			// Reset the cached_response if we got a cache miss.
+			if($success) {
+				if($this->is_debugging()) {
+					echo "Cache hit!\n";
+				}
+			} else {
+				if($this->is_debugging()) {
+					echo "Cache missed.\n";
+				}
+				$cached_response = null;
+			}
+		} else {
+			$cached_response = null;
+		}
+		
+		if($cached_response) {
+			$response = $cached_response;
+		} else {
+			$response = curl_exec($this->_curl_handle);
+			if($this->_cache_responses || $this->_cache_next_response) {
+				// Save this response in the cache.
+				apc_add($cache_key, $response, self::CACHE_TTL);
+			}
+		}
 		
 		$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
 		
-		if($status_code !== 200) {
-			if(preg_match('|<title>(.*)</title>|', $response, $message) > 0) {
-				$message = $message[1];
-			} else {
-				$message = $response;
-			}
-			throw new \Exception('The CIP service did not respond with the 200 OK status, it responded: ' . $status_code . ': ' . $message);
+		if($this->_cache_next_response) {
+			// Reset cache next response, if set.
+			$this->_cache_next_response = false;
+		}
+		
+		if($status_code >= 400 && $status_code <= 599) {
+			throw new CIPServersideException( $response, $status_code );
 		}
 		
 		if($response === false) {
@@ -249,23 +329,33 @@ class CIPClient {
 			// A void response should simply return true.
 			return true;
 		} else {
-			return json_decode($response, true);
+			$result = json_decode($response, true);
+			// Apply filters.
+			array_walk_recursive($result, function(&$value, &$key, $userdata) {
+				$value = $userdata['this']->applyValueFilters($userdata['service'], $userdata['operation'], $key, $value);
+			}, array(
+				'this' => &$this,
+				'service' => $service_name,
+				'operation' => $operation_name
+			));
+			return $result;
 		}
 	}
 	
 	/**
 	 * Set the credentials for the DAM to be used.
-	 * @param string $serveraddress
-	 * @param string $user
-	 * @param string $password
+	 * @param string $user The user of the Cumulus DAM server.
+	 * @param string $password The password of the Cumulus DAM server.
+	 * @param string $serveraddress The address of the Cumulus DAM server.
+	 * @param boolean $via_session Should this be communicated by opening a session? (Default true)
 	 */
-	public function setDAMCredentials($serveraddress, $user, $password, $via_session = true) {
+	public function setDAMCredentials($user, $password, $serveraddress = null, $via_session = true) {
 		if($via_session) {
-			$this->session()->open(self::API_VERSION, $serveraddress, $user, $password, null, null, true);
+			$this->session()->open($serveraddress, $user, $password, null, null, true);
 		} else {
-			$this->_dam_serveraddress = $serveraddress;
 			$this->_dam_user = $user;
 			$this->_dam_password = $password;
+			$this->_dam_serveraddress = $serveraddress;
 		}
 	}
 	
@@ -288,6 +378,44 @@ class CIPClient {
 	 */
 	public function setSessionID($jsessionid) {
 		$this->_jsessionid = $jsessionid;
+	}
+	
+	/**
+	 * Make the client remember the jsessionid, set to null to reset.
+	 * @param string $jsessionid A session ID returned from a /session/open call to the service.
+	 */
+	public function getSessionID() {
+		return $this->_jsessionid;
+	}
+
+	protected $_valueFilters = array();
+	
+	public function addValueFilter($filter) {
+		if($filter instanceof \CIP\filters\IValueFilter) {
+			$this->_valueFilters[] = $filter;
+		} else {
+			throw new \InvalidArgumentException("The supplied argument is not implementing the \CIP\filters\IValueFilter interface!");
+		}
+	}
+	
+	public function applyValueFilters( $service, $action, $key, $value ) {
+		foreach($this->_valueFilters as $filter) {
+			$value = $filter->apply( $service, $action, $key, $value );
+		}
+		return $value;
+	}
+	
+	protected function loadDefaultValueFilters() {
+		if ($handle = opendir(__DIR__ . self::FILTERS_DIRECTORY)) {
+			while (false !== ($entry = readdir($handle))) {
+				if ($entry != "." && $entry != ".." && $entry != 'IValueFilter.php') {
+					$class_name = '\\CIP\\filters\\' . substr($entry, 0, strlen($entry) - 4);
+					$filter = new $class_name();
+					$this->addValueFilter($filter);
+				}
+			}
+			closedir($handle);
+		}
 	}
 }
 
