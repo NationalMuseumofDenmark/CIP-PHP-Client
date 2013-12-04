@@ -64,7 +64,7 @@ class MetadataService extends \CIP\services\metadata\BaseMetadataService {
 		foreach($layout['fields'] as $field) {
 			$field_name = self::prettifyFieldName($field['name']);
 			$this->_layout_fields_cache[$field['key']] = array(
-					'pretty_name' => $field_name
+				'pretty_name' => $field_name
 			);
 		}
 		

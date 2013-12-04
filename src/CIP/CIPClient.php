@@ -332,7 +332,7 @@ class CIPClient {
 			$result = json_decode($response, true);
 			// Apply filters.
 			array_walk_recursive($result, function(&$value, &$key, $userdata) {
-				$value = $userdata['this']->applyValueFilters($userdata['service'], $userdata['operation'], $key, $value);
+				$userdata['this']->applyValueFilters($userdata['service'], $userdata['operation'], $key, $value);
 			}, array(
 				'this' => &$this,
 				'service' => $service_name,
@@ -398,11 +398,11 @@ class CIPClient {
 		}
 	}
 	
-	public function applyValueFilters( $service, $action, $key, $value ) {
+	public function applyValueFilters( $service, $action, &$key, &$value ) {
 		foreach($this->_valueFilters as $filter) {
-			$value = $filter->apply( $service, $action, $key, $value );
+			// $key and $value are passed by referance.
+			$filter->apply( $service, $action, $key, $value );
 		}
-		return $value;
 	}
 	
 	protected function loadDefaultValueFilters() {
