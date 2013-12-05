@@ -36,12 +36,20 @@ class MetadataService extends \CIP\services\metadata\BaseMetadataService {
 	 */
 	public function search_with_layout($catalog, $view = null, $quicksearchstring = null, $queryname = null, $querystring = null, $startindex = null, $maxreturned = null, $locale = null, $sortby = null, $collection = null, $combine = null, $table = null, $field = null, $catalogname = null) {
 		$response = parent::search($catalog, $view, $quicksearchstring, $queryname, $querystring, $startindex, $maxreturned, $locale, $sortby, $collection, $combine, $table, $field, $catalogname);
-		$this->apply_layout($response, $catalog, $view, $table, $locale, $field, $catalogname);
+		// We want to use a cached response if possible.
+		$this->_client->cacheNextResponse();
+		// Request the layout but throw away the result.
+		$this->getlayout($catalog, $view, $table, $locale, $field, $catalogname);
+		$this->_client->cacheNextResponse();
+		$this->getlayout($catalog, $view, $table, $locale, $field, $catalogname);
+		// Apply the layout using the layout manager.
+		$this->apply_layout($response);
+		// Return the response.
 		return $response;
 	}
 
 	/**
-	 * Apply the layout to a response from the service.
+	 * Return a description of all the fields of a given table.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#metadata_getlayout
 	 * @param string $catalog The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @param string[optional] $view The name of a view definition from the configuration file which defines a list of fields to use. See the configuration section on details on how to define views. The field list can be extended with additional fields specified in named request parameters.
@@ -54,28 +62,31 @@ class MetadataService extends \CIP\services\metadata\BaseMetadataService {
 	 * @param string[optional] $catalogname The DAM system catalog name for later catalog access e.g. Sample Catalog
 	 * @return mixed The result is the list of field definitions of the given table. Each field definition contains the type of the field, the field name in the language of the specified locale and the user editable flag. Fields of type Enum also contain a list of possible values which consist of an ID and a name in the given locale.
 	 */
-	protected function apply_layout(&$response, $catalog, $view = null, $table = null, $locale = null, $field = null, $catalogname = null) {
-		// We want to use a cached response if possible.
-		$this->_client->cacheNextResponse();
-		$layout = $this->getlayout($catalog, $view, $table, $locale, $field, $catalogname);
-		
-		// Computing fields.
-		$layout_fields = array();
-		foreach($layout['fields'] as $field) {
-			$field_name = self::prettifyFieldName($field['name']);
-			$this->_layout_fields_cache[$field['key']] = array(
-				'pretty_name' => $field_name
-			);
+	public function getlayout($catalog, $view = null, $table = null, $locale = null, $field = null, $catalogname = null) {
+		$response = parent::getlayout($catalog, $view, $table, $locale, $field, $catalogname);
+		foreach($response['fields'] as $field) {
+			$key = $field['key'];
+			$display_name = $field['name'];
+			$this->getLayoutMapper()->updateField($key, $display_name);
 		}
-		
+		return $response;
+	}
+
+	/**
+	 * Apply the layout to a response from the service.
+	 * @param mixed The response to apply layout field translations to.
+	 */
+	protected function apply_layout(&$response) {
+		$mapper = $this->getLayoutMapper();
 		// Altering the response.
 		foreach($response['items'] as &$item) {
 			$item_replacement = array();
 			foreach($item as $key => $value) {
-				if(array_key_exists($key, $this->_layout_fields_cache)) {
-					$key = $this->_layout_fields_cache[$key]['pretty_name'];
+				if(strlen($key) == 38) {
+					// This is probably a UUID.
+					$name = $mapper->UUID2Name($key);
+					$item_replacement[$name] = $value;
 				}
-				$item_replacement[$key] = $value;
 			}
 			$item = $item_replacement;
 		}
@@ -83,22 +94,13 @@ class MetadataService extends \CIP\services\metadata\BaseMetadataService {
 		return $response;
 	}
 	
-	protected $_layout_fields_cache = array();
+	protected $_layout_mapper_singleton;
 	
-	protected static function prettifyFieldName($field_name) {
-		$field_name = strtolower($field_name);
-		// Turn spaces and dashes into underscores.
-		$field_name = preg_replace("/ /", "_", $field_name);
-		$field_name = preg_replace("/-/", "_", $field_name);
-		// Turn any subsequent unserscores into as single.
-		$field_name = preg_replace("/_+/", "_", $field_name);
-		// For the titles in from the nordics.
-		$field_name = preg_replace("/æ/", "ae", $field_name);
-		$field_name = preg_replace("/ø/", "oe", $field_name);
-		$field_name = preg_replace("/å/", "aa", $field_name);
-		// Remove anything which is not alhanummeric.
-		$field_name = preg_replace("/[^a-z0-9_]+/", "", $field_name);
-		return $field_name;
+	public function getLayoutMapper() {
+		if($this->_layout_mapper_singleton == null) {
+			$this->_layout_mapper_singleton = new LayoutMapper();
+		}
+		return $this->_layout_mapper_singleton;
 	}
 	
 }

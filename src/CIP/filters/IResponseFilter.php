@@ -1,6 +1,6 @@
 <?php
 namespace CIP\filters;
-interface IValueFilter {
+interface IResponseFilter {
 	/**
 	 * Apply the filter to the a specific field's value.
 	 * @param string $service The name of the service called.
@@ -8,5 +8,5 @@ interface IValueFilter {
 	 * @param string $key The key in the reponse.
 	 * @param mixed $value The value in the response.
 	 */
-	public function apply( $service, $operation, &$key, &$value );
+	public function apply( $service, $operation, &$response );
 }

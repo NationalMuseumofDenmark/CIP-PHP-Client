@@ -37,7 +37,7 @@ class CIPClient {
 		$this->_server = $server;
 		$this->setDAMCredentials($dam_user, $dam_password, $dam_serveraddress, $autocreate_session);
 		// Load all the filters.
-		$this->loadDefaultValueFilters();
+		$this->loadDefaultResponseFilters();
 	}
 	
 	public function __destruct() {
@@ -162,15 +162,18 @@ class CIPClient {
 	}
 	
 	/**
+	 * The cache holding responses.
+	 * @var mixed[string]
+	 */
+	protected $_response_cache = array();
+	
+	/**
 	 * Should responses from the service be cached on this side?
 	 * @var boolean
 	 */
 	protected $_cache_responses = false;
 	
 	public function cacheResponses($cache_responses = true) {
-		if($cache_responses) {
-			self::ensureAPCCache();
-		}
 		// TODO: Check that APC cache is installed.
 		$this->_cache_responses = $cache_responses;
 	}
@@ -186,21 +189,9 @@ class CIPClient {
 	protected $_cache_next_response = false;
 	
 	public function cacheNextResponse() {
-		self::ensureAPCCache();
 		// TODO: Check that APC cache is installed.
 		$this->_cache_next_response = true;
 	}
-	
-	/**
-	 * Ensure that the APC module is installed (used when caching).
-	 * @throws \Exception If it's not.
-	 */
-	protected static function ensureAPCCache() {
-		if(!function_exists('apc_add') || !function_exists('apc_fetch')) {
-			throw new \Exception("The Alternative PHP Cache module is not loaded, please see http://php.net/manual/en/book.apc.php for more information.");
-		}
-	}
-	
 	
 	/**
 	 * Process a call to the CIP server.
@@ -280,69 +271,50 @@ class CIPClient {
 		}
 		
 		curl_setopt($this->_curl_handle, CURLOPT_URL, $url);
-		
+
+		$cached_response = null;
 		// Before we execute the request - let's check if we should load it from the cache.
 		if($this->_cache_responses || $this->_cache_next_response) {
 			$cache_key = md5($url . print_r($named_parameters, true));
 			$success = false;
-			// Check if we hace the response in the cache.
-			$cached_response = apc_fetch($cache_key, &$success);
 			// Reset the cached_response if we got a cache miss.
-			if($success) {
-				if($this->is_debugging()) {
-					echo "Cache hit!\n";
-				}
+			if(array_key_exists($cache_key, $this->_response_cache)) {
+				if($this->is_debugging()) { echo "Cache hit!\n"; }
+				$cached_response = $this->_response_cache[$cache_key];
 			} else {
-				if($this->is_debugging()) {
-					echo "Cache missed.\n";
-				}
-				$cached_response = null;
+				if($this->is_debugging()) { echo "Cache missed: $cache_key\n"; }
 			}
-		} else {
-			$cached_response = null;
 		}
 		
 		if($cached_response) {
-			$response = $cached_response;
+			$response_decoded = $cached_response;
 		} else {
 			$response = curl_exec($this->_curl_handle);
-			if($this->_cache_responses || $this->_cache_next_response) {
-				// Save this response in the cache.
-				apc_add($cache_key, $response, self::CACHE_TTL);
+			$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
+			
+			if($status_code >= 400 && $status_code <= 599) {
+				throw new CIPServersideException( $response, $status_code );
+			}
+			
+			if($response === false) {
+				throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));
+			} elseif ($response === '') {
+				// A void response should simply return true.
+				$response_decoded = true;
+			} else {
+				$response_decoded = json_decode($response, true);
+				$this->applyResponseFilters($service_name, $operation_name, $response_decoded);
 			}
 		}
 		
-		$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
-		
-		if($this->_cache_next_response) {
-			// Reset cache next response, if set.
-			$this->_cache_next_response = false;
+		if($this->_cache_responses || $this->_cache_next_response) {
+			// Saving a copy of the array in the cache.
+			$this->_response_cache[$cache_key] = array_merge(array(), $response_decoded);
 		}
+		// Reset cache next response, if set.
+		$this->_cache_next_response = false;
 		
-		if($status_code >= 400 && $status_code <= 599) {
-			throw new CIPServersideException( $response, $status_code );
-		}
-		
-		if($response === false) {
-			throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));
-		} elseif ($response === '') {
-			// A void response should simply return true.
-			return true;
-		} else {
-			$response_decoded = json_decode($response, true);
-			$this->applyValueFiltersOnResponse($service_name, $operation_name, $response_decoded);
-			/*
-			// Apply filters.
-			array_walk_recursive($result, function(&$value, &$key, $userdata) {
-				$userdata['this']->applyValueFilters($userdata['service'], $userdata['operation'], $key, $value);
-			}, array(
-				'this' => &$this,
-				'service' => $service_name,
-				'operation' => $operation_name
-			));
-			*/
-			return $response_decoded;
-		}
+		return $response_decoded;
 	}
 	
 	/**
@@ -393,33 +365,35 @@ class CIPClient {
 
 	protected $_valueFilters = array();
 	
-	public function addValueFilter($filter) {
-		if($filter instanceof \CIP\filters\IValueFilter) {
-			$this->_valueFilters[] = $filter;
+	public function addResponseFilter($filter, $service = null, $operation = null) {
+		if($filter instanceof \CIP\filters\IResponseFilter) {
+			$this->_responseFilters[] = array(
+				'filter' => $filter,
+				'service' => $service,
+				'operation' => $operation
+			);
 		} else {
-			throw new \InvalidArgumentException("The supplied argument is not implementing the \CIP\filters\IValueFilter interface!");
+			throw new \InvalidArgumentException("The supplied argument is not implementing the \CIP\filters\IResponseFilter interface!");
 		}
 	}
 	
-	public function applyValueFiltersOnResponse( $service, $operation, &$response ) {
-		// TODO: Loop through the $response and call applyValueFilters on every key / value pair.
-		throw new \Exception("Not implemented");
-	}
-	
-	public function applyValueFilters( $service, $operation, &$key, &$value ) {
-		foreach($this->_valueFilters as $filter) {
-			// $key and $value are passed by referance.
-			$filter->apply( $service, $operation, $key, $value );
+	public function applyResponseFilters( $service, $operation, &$response ) {
+		foreach($this->_responseFilters as $filter) {
+			$service_matches = $filter['service'] == null || $filter['service'] == $service;
+			$operation_matches = $filter['operation'] == null || $filter['operation'] == $operation;
+			if($service_matches && $operation_matches) {
+				$filter['filter']->apply( $service, $operation, $response );
+			}
 		}
 	}
 	
-	protected function loadDefaultValueFilters() {
+	protected function loadDefaultResponseFilters() {
 		if ($handle = opendir(__DIR__ . self::FILTERS_DIRECTORY)) {
 			while (false !== ($entry = readdir($handle))) {
-				if ($entry != "." && $entry != ".." && $entry != 'IValueFilter.php') {
+				if ($entry != "." && $entry != ".." && $entry != 'IResponseFilter.php') {
 					$class_name = '\\CIP\\filters\\' . substr($entry, 0, strlen($entry) - 4);
 					$filter = new $class_name();
-					$this->addValueFilter($filter);
+					$this->addResponseFilter($filter);
 				}
 			}
 			closedir($handle);
