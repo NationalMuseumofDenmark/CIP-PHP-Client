@@ -363,7 +363,7 @@ class CIPClient {
 		return $this->_jsessionid;
 	}
 
-	protected $_valueFilters = array();
+	protected $_responseFilters = array();
 	
 	public function addResponseFilter($filter, $service = null, $operation = null) {
 		if($filter instanceof \CIP\filters\IResponseFilter) {
