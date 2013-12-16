@@ -79,16 +79,18 @@ class MetadataService extends \CIP\services\metadata\BaseMetadataService {
 	protected function apply_layout(&$response) {
 		$mapper = $this->getLayoutMapper();
 		// Altering the response.
-		foreach($response['items'] as &$item) {
-			$item_replacement = array();
-			foreach($item as $key => $value) {
-				if(strlen($key) == 38) {
-					// This is probably a UUID.
-					$name = $mapper->UUID2Name($key);
-					$item_replacement[$name] = $value;
+		if(isset($response['items'])) {
+			foreach($response['items'] as &$item) {
+				$item_replacement = array();
+				foreach($item as $key => $value) {
+					if(strlen($key) == 38) {
+						// This is probably a UUID.
+						$name = $mapper->UUID2Name($key);
+						$item_replacement[$name] = $value;
+					}
 				}
+				$item = $item_replacement;
 			}
-			$item = $item_replacement;
 		}
 		
 		return $response;
