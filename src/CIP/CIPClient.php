@@ -11,9 +11,16 @@ class CIPClient {
 	const CACHE_TTL = 0; // Cached responses live forever.
 	const FILTERS_DIRECTORY = '/filters/';
 	
-	protected $_server;
+	const DEFAULT_CALLER = '\CIP\callers\CURLCaller';
+	// const DEFAULT_CALLER = '\CIP\callers\StreamCaller';
 	
-	protected $_curl_handle;
+	/**
+	 * The object to use when calling.
+	 * @var \CIP\callers\ACaller
+	 */
+	protected $_caller;
+	
+	protected $_server;
 	
 	protected $_jsessionid;
 	
@@ -32,6 +39,8 @@ class CIPClient {
 	 * @param string[optional] $locale The two-letter language code (ISO 639-1) to be used for the metadata field values. This parameter affects the way language-dependent metadata values are parsed. For example you can specify “fr” to specify all values suitable for French users. The default is the default locale the CIP server is running in (may be controlled using the “user.language” Java VM parameter when starting the web application server).
 	 */
 	public function __construct($server, $autocreate_session = true, $dam_user = null, $dam_password = null, $dam_serveraddress = null) {
+		$caller_class = self::DEFAULT_CALLER;
+		$this->_caller = new $caller_class();
 		// Remove any trailing / from the server.
 		$server = trim($server, '/');
 		$this->_server = $server;
@@ -242,7 +251,7 @@ class CIPClient {
 		if(self::is_debugging()) {
 			echo "Calling CIP: $url?";
 			echo http_build_query($named_parameters);
-			echo "\n";
+			$t1 = microtime(true);
 		}
 		
 		if(count($named_parameters) > 0) {
@@ -250,27 +259,6 @@ class CIPClient {
 		} else {
 			$named_parameters = '';
 		}
-		
-		// If the curl handle has not been initialized, it will be.
-		if($this->_curl_handle == null) {
-			$this->_curl_handle = curl_init();
-			curl_setopt($this->_curl_handle, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($this->_curl_handle, CURLOPT_USERAGENT, sprintf(self::USERAGENT, self::CLIENT_VERSION) );
-		}
-		
-		// Using the provided HTTP method.
-		if($http_method == 'POST') {
-			curl_setopt($this->_curl_handle, CURLOPT_POST, true);
-			// TODO: Consider if these named parameters should actually be added to the URL instead of the request body.
-			curl_setopt($this->_curl_handle, CURLOPT_POSTFIELDS, $named_parameters);
-		} elseif($http_method == 'GET') {
-			curl_setopt($this->_curl_handle, CURLOPT_POST, false);
-			$url .= '?' . $named_parameters;
-		} else {
-			throw new \RuntimeException('Unsupported HTTP method: ' . $http_method);
-		}
-		
-		curl_setopt($this->_curl_handle, CURLOPT_URL, $url);
 
 		$cached_response = null;
 		// Before we execute the request - let's check if we should load it from the cache.
@@ -279,32 +267,19 @@ class CIPClient {
 			$success = false;
 			// Reset the cached_response if we got a cache miss.
 			if(array_key_exists($cache_key, $this->_response_cache)) {
-				if($this->is_debugging()) { echo "Cache hit!\n"; }
+				if($this->is_debugging()) { echo " [cache-hit]"; }
 				$cached_response = $this->_response_cache[$cache_key];
 			} else {
-				if($this->is_debugging()) { echo "Cache missed: $cache_key\n"; }
+				if($this->is_debugging()) { echo " [cache-miss:$cache_key]"; }
 			}
 		}
 		
 		if($cached_response) {
 			$response_decoded = $cached_response;
 		} else {
-			$response = curl_exec($this->_curl_handle);
-			$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
-			
-			if($status_code >= 400 && $status_code <= 599) {
-				throw new CIPServersideException( $response, $status_code );
-			}
-			
-			if($response === false) {
-				throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));
-			} elseif ($response === '') {
-				// A void response should simply return true.
-				$response_decoded = true;
-			} else {
-				$response_decoded = json_decode($response, true);
-				$this->applyResponseFilters($service_name, $operation_name, $response_decoded);
-			}
+			$response_decoded = $this->_caller->call($url, $http_method, $named_parameters);
+			$t2 = microtime(true);
+			$this->applyResponseFilters($service_name, $operation_name, $response_decoded);
 		}
 		
 		if($this->_cache_responses || $this->_cache_next_response) {
@@ -313,6 +288,12 @@ class CIPClient {
 		}
 		// Reset cache next response, if set.
 		$this->_cache_next_response = false;
+
+		if(self::is_debugging()) {
+			$t3 = microtime(true);
+			$t_diff = round( ($t3 - $t1) * 1000 );
+			echo " [took $t_diff ms]\n";
+		}
 		
 		return $response_decoded;
 	}
