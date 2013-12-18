@@ -9,64 +9,74 @@ require_once dirname(__FILE__).'/../../lib/jsonstreamingparser/src/JsonStreaming
 * the point across.
 */
 class ArrayMaker implements \JsonStreamingParser_Listener {
-  private $_json;
+	private $_json;
 
-  private $_stack;
-  private $_key;
+	private $_stack;
+	private $_key;
 
-  public function file_position($line, $char) {
+	public function file_position($line, $char) {
 
-  }
+	}
 
-  public function get_json() {
-    return $this->_json;
-  }
+	public function get_json() {
+		echo "get_json called\n";
+		exit;
+		return $this->_json;
+	}
 
-  public function start_document() {
-    $this->_stack = array();
-    $this->_key = null;
-  }
+	public function start_document() {
+		echo "start_document called\n";
+		$this->_stack = array();
+		$this->_key = null;
+	}
 
-  public function end_document() {
-    // w00t!
-  }
+	public function end_document() {
+		echo "end_document called\n";
+		// w00t!
+	}
 
-  public function start_object() {
-    array_push($this->_stack, array());
-  }
+	public function start_object() {
+		echo "start_object called\n";
+		array_push( $this->_stack, array() );
+	}
 
-  public function end_object() {
-    $obj = array_pop($this->_stack);
-    if (empty($this->_stack)) {
-      // doc is DONE!
-      $this->_json = $obj;
-    } else {
-      $this->value($obj);
-    }
-  }
+	public function end_object() {
+		echo "end_object called\n";
+		$obj = array_pop( $this->_stack );
+		if ( empty($this->_stack) ) {
+			// doc is DONE!
+			$this->_json = $obj;
+		} else {
+			$this->value($obj);
+		}
+	}
 
-  public function start_array() {
-    $this->start_object();
-  }
+	public function start_array() {
+		echo "start_array called\n";
+		$this->start_object();
+	}
 
-  public function end_array() {
-    $this->end_object();
-  }
+	public function end_array() {
+		echo "end_array called\n";
+		$this->end_object();
+	}
 
-  // Key will always be a string
-  public function key($key) {
-    $this->_key = $key;
-  }
+	// Key will always be a string
+	public function key( $key ) {
+		echo "key($key) called\n";
+		$this->_key = $key;
+	}
 
-  // Note that value may be a string, integer, boolean, null
-  public function value($value) {
-    $obj = array_pop($this->_stack);
-    if ($this->_key) {
-      $obj[$this->_key] = $value;
-      $this->_key = null;
-    } else {
-      array_push($obj, $value);
-    }
-    array_push($this->_stack, $obj);
-  }
+	// Note that value may be a string, integer, boolean, null
+	public function value( $value ) {
+		echo "value($value) called\n";
+		$obj = array_pop($this->_stack);
+		if ($this->_key) {
+			$obj[$this->_key] = $value;
+			$this->_key = null;
+		} else {
+			array_push($obj, $value);
+		}
+		array_push($this->_stack, $obj);
+	}
 }
