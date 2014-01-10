@@ -1,7 +1,7 @@
 CIP-PHP-Client
 ==============
 
-An independent implementation of a PHP Client for the Canto Integration Platform
+An independent implementation of a PHP Client for the Canto Integration Platform, developped by National Museum of Denmark.
 
 To run the tests first defining the environment variables:
 
