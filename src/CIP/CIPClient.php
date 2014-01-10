@@ -12,7 +12,7 @@ class CIPClient {
 	const FILTERS_DIRECTORY = '/filters/';
 	
 	const DEFAULT_CALLER = '\CIP\callers\CURLCaller';
-	// const DEFAULT_CALLER = '\CIP\callers\StreamCaller';
+	//const DEFAULT_CALLER = '\CIP\callers\StreamCaller';
 	
 	/**
 	 * The object to use when calling.

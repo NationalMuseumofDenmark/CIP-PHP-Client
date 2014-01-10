@@ -31,7 +31,7 @@ class CURLCaller extends ACaller {
 		$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
 		
 		if($status_code >= 400 && $status_code <= 599) {
-			throw new CIPServersideException( $response, $status_code );
+			throw new \CIP\CIPServersideException( $response, $status_code );
 		}
 		
 		if($response === false) {
