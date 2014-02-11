@@ -15,3 +15,17 @@ To run the tests first defining the environment variables:
 	export DEBUGGING="true";
 
 then change directory into the tests folder and running the run-tests.php script using the command-line PHP interpreter.
+
+This is how easy it is to get started!
+==============
+
+	<?php
+	// Include and bootstrap the client.
+	require("./src/CIP/CIPClient.php");
+	// Instantiate the CIP client.
+	$client = new \CIP\CIPClient('http://samlinger.natmus.dk/', false);
+	// Request the system version.
+	$response = $client->system()->getversion();
+	// Print the version returned from the service.
+	print_r($response['version']);
+	?>
