@@ -261,7 +261,11 @@ class CIPClient {
 		}
 
 		if($return_url) {
-			return $url .'?'. $named_parameters;
+			if(strlen($named_parameters) > 0) {
+				return $url .'?'. $named_parameters;
+			} else {
+				return $url;
+			}
 		}
 
 		$cached_response = null;
