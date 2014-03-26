@@ -10,8 +10,8 @@ class CURLCaller extends ACaller {
 		curl_setopt($this->_curl_handle, CURLOPT_USERAGENT, sprintf(\CIP\CIPClient::USERAGENT, \CIP\CIPClient::CLIENT_VERSION) );
 	}
 	
-	public function call($url, $http_method, $data, $content_type = 'application/x-www-form-urlencoded') {
-		curl_setopt($this->_curl_handle, CURLOPT_HTTPHEADER, array("Content-Type: $content_type"));
+	public function call($url, $http_method, $data, $request_content_type = 'application/x-www-form-urlencoded') {
+		curl_setopt($this->_curl_handle, CURLOPT_HTTPHEADER, array("Content-Type: $request_content_type"));
 		
 		// Using the provided HTTP method.
 		if($http_method == 'POST') {
@@ -28,20 +28,24 @@ class CURLCaller extends ACaller {
 		curl_setopt($this->_curl_handle, CURLOPT_URL, $url);
 			
 		$response = curl_exec($this->_curl_handle);
-		$status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
-		
-		if($status_code >= 400 && $status_code <= 599) {
-			throw new \CIP\CIPServersideException( $response, $status_code );
+		$response_status_code = curl_getinfo($this->_curl_handle, CURLINFO_HTTP_CODE);
+		$response_content_type = curl_getinfo($this->_curl_handle, CURLINFO_CONTENT_TYPE);
+
+		if($response_status_code >= 400 && $response_status_code <= 599) {
+			throw new \CIP\CIPServersideException( $response, $response_status_code );
 		}
-		
-		if($response === false) {
-			throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));
-		} elseif ($response === '') {
-			return true;
-		} else {
-			return json_decode($response, true);
+
+		if($response_content_type === 'application/json;charset=UTF-8') {
+			if($response === false) {
+				throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));
+			} elseif ($response === '') {
+				return true;
+			} else {
+				return json_decode($response, true);
+			}
+		} elseif($response_content_type === 'image/jpeg') {
+			return $response;
 		}
-		
 	}
 	
 }
