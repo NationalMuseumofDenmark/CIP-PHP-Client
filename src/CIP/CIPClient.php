@@ -222,7 +222,7 @@ class CIPClient {
 		
 		$url = $this->_server . '/CIP/' . $service_name . '/' . $operation_name;
 		
-		if(!array_key_exists('apiversion', $named_parameters)) {
+		if(!array_key_exists('apiversion', $named_parameters) && $return_url !== 'clean') {
 			$named_parameters['apiversion'] = self::API_VERSION;
 		}
 		
@@ -244,7 +244,7 @@ class CIPClient {
 			$url .= '/' . implode('/', $path_parameters);
 		}
 		
-		if($this->_jsessionid !== null && is_string($this->_jsessionid)) {
+		if($this->_jsessionid !== null && is_string($this->_jsessionid) && $return_url !== 'clean') {
 			$url .= ';jsessionid=' . $this->_jsessionid;
 		}
 		
