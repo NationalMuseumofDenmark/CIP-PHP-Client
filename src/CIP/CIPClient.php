@@ -213,7 +213,7 @@ class CIPClient {
 	 * @throws \Exception If the server fails to respond.
 	 * @return mixed A json decoding of the servers response.
 	 */
-	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $include_dam_credentials = false, $http_method = 'POST') {
+	public function call($service_name, $operation_name, $path_parameters = array(), $named_parameters = array(), $include_dam_credentials = false, $http_method = 'POST', $return_url = false) {
 		// First - strip off any variant prefix from the $operation_name.
 		$operation_name_underscore_index = strpos($operation_name, '_');
 		if($operation_name_underscore_index !== false) {
@@ -258,6 +258,10 @@ class CIPClient {
 			$named_parameters = http_build_query($named_parameters);
 		} else {
 			$named_parameters = '';
+		}
+
+		if($return_url) {
+			return $url .'?'. $named_parameters;
 		}
 
 		$cached_response = null;
