@@ -64,6 +64,6 @@ class PreviewService extends BasePreviewService {
 			'fallbackimageonerror' => $fallbackimageonerror,
 			'version' => $version,
 			'catalogname' => $catalogname
-		), true, 'GET', true);
+		), true, 'GET', 'clean');
 	}
 }
