@@ -21,12 +21,13 @@ class LocationService extends \CIP\services\BaseService {
 	 * - If the location specifies a directory the result contains a list of names for the contained files or directories.
 	 * - If the location is not valid (e.g. file/directory does not exist) an error is returned.
 	 * The user specified in the request needs the server permission $CanListFiles to perform this action.
+	 * Unfortunately list is a keyword in PHP, so it has been renamed to lists.
 	 * @see http://crc.canto.com/CIP/doc/CIP.html#location_list
 	 * @param string $location The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @return mixed A list of locations for all files/directories contained.
 	 */
-	public function list($location) {
-		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
+	public function lists($location) {
+		return $this->_client->call(self::getServiceName(), 'list', array(), array(
 			'location' => $location
 		), true);
 	}
