@@ -25,7 +25,7 @@ class LocationService extends \CIP\services\BaseService {
 	 * @param string $location The name of a catalog alias definition from the configuration file. See the configuration section for details on how to define catalog aliases.
 	 * @return mixed A list of locations for all files/directories contained.
 	 */
-	public function get($location) {
+	public function list($location) {
 		return $this->_client->call(self::getServiceName(), __FUNCTION__, array(), array(
 			'location' => $location
 		), true);
