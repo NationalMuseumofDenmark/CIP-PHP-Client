@@ -9,7 +9,9 @@ An independent implementation of a PHP Client for the Canto Integration Platform
 
 Or simply download a pre-bundled ZIP-package from http://natmus.demo.bitblueprint.com/cip-php-client/dist/cip-php-client.zip
 	
-## Ones downloaded, you can start experimenting, for inspiration look into example.php
+## Require the CIPClient.php and start experimenting
+
+Ones downloaded, you can start experimenting, for inspiration look into example.php
 
 	<?php
 	// Include and bootstrap the client.
