@@ -28,7 +28,7 @@ Ones downloaded, you can start experimenting, for inspiration look into example.
 	?>
 	
 ## Documentation
-The sourcecode of the CIP-PHP-Client is annotated with documentation, which is published on http://natmus.demo.bitblueprint.com/cip-php-client/doc/
+The source code of the CIP-PHP-Client is annotated with documentation, which is published on http://natmus.demo.bitblueprint.com/cip-php-client/doc/
 
 ### Buidling the documentation
 If you make changes to the sourcecode and want to build the documentation, you need a tool such as phpdoc.
