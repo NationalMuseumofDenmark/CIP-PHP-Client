@@ -1,10 +1,9 @@
-CIP-PHP-Client
-==============
+# CIP PHP Client
 
-An independent implementation of a PHP Client for the Canto Integration Platform, developped by National Museum of Denmark.
+An independent implementation of a PHP Client for the Canto Integration Platform, developped for [the National Museum of Denmark](http://digital.natmus.dk/).
 
-Getting started!
-==============
+# Getting started!
+
 
 	<?php
 	// Include and bootstrap the client.
@@ -20,8 +19,7 @@ Getting started!
 	print_r($response['version']);
 	?>
 
-Running the tests
-==============
+## Running the tests
 
 To run the tests first defining the environment variables:
 
@@ -35,3 +33,10 @@ To run the tests first defining the environment variables:
 	export DEBUGGING="true";
 
 then change directory into the tests folder and running the run-tests.php script using the command-line PHP interpreter.
+
+## Buidling the documentation
+
+First, make sure you have installed the PhpDocumentor following the installation guide at http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ric_INSTALL.html, essentially telling you to run
+
+    pear upgrade PhpDocumentor
+
