@@ -58,6 +58,5 @@ To run the tests first defining the environment variables, then change directory
 	export TEST_CATALOG_NAME="...";
 	export TEST_CATALOG_VIEW="web";
 	export DEBUGGING="true";
-	cd tests;
-	php run-tests.php;
+	phpunit --debug --bootstrap vendor/autoload.php .
 
