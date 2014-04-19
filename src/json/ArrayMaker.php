@@ -1,7 +1,6 @@
 <?php
 namespace json;
-require_once dirname(__FILE__).'/../../lib/jsonstreamingparser/src/JsonStreamingParser/Listener.php';
-require_once dirname(__FILE__).'/../../lib/jsonstreamingparser/src/JsonStreamingParser/Parser.php';
+
 /**
  * This basic implementation of a listener simply constructs an in-memory
 * representation of the JSON document, which is a little silly since the whole

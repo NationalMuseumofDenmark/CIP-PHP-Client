@@ -1,3 +1,0 @@
-[submodule "lib/jsonsteamingparser"]
-	path = lib/jsonstreamingparser
-	url = https://github.com/salsify/jsonstreamingparser.git

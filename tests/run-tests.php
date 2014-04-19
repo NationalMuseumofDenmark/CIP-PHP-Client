@@ -2,7 +2,7 @@
 echo "Running CIP client tests - this should be run using the PHP CLI.\n";
 
 // Loading the client library.
-require_once '../src/CIP/CIPClient.php';
+require_once '../vendor/autoload.php';
 
 // Make sure the server is given as an environment variable.
 if(!array_key_exists('CIP_SERVER', $_SERVER)) {

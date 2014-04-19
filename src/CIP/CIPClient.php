@@ -389,7 +389,3 @@ class CIPClient {
 		}
 	}
 }
-
-// Bootstrap the classloader.
-set_include_path(get_include_path() . PATH_SEPARATOR . __DIR__ . DIRECTORY_SEPARATOR . "..");
-require_once 'classloader.php';

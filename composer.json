@@ -1,0 +1,16 @@
+{
+    "name": "national-museum-of-denmark/cip-php-client",
+    "description": "A PHP Client for the Canto Integration Platform",
+    "license" : "MIT",
+    "autoload": {
+      "psr-0": {
+        "CIP": ["src/"],
+        "json": ["src/"]
+      }
+    },
+    "require": {
+    },
+    "suggest": {
+      "salsify/jsonstreamingparser": "Use a streaming JSON parser to improve performance when handling large result sets"
+    }
+}
