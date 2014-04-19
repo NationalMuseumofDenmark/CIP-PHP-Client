@@ -18,7 +18,7 @@ Ones downloaded, you can start experimenting, for inspiration look into example.
 
 	<?php
 	// Include and bootstrap the client.
-	require("./src/CIP/CIPClient.php");
+	require("./vendor/autoload.php");
 	
 	// Instantiate the CIP client.
 	$client = new \CIP\CIPClient('http://samlinger.natmus.dk/', false);
