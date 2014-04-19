@@ -9,6 +9,8 @@
       }
     },
     "require": {
-
+    },
+    "suggest": {
+      "salsify/jsonstreamingparser": "Use a streaming JSON parser to improve performance when handling large result sets"
     }
 }
