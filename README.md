@@ -68,7 +68,7 @@ Again you have to download a tool to run the unit tests, this is phpunit, which 
 
 To run the tests first defining the environment variables, then invoke the phpunit tool as follows.
 
-	PHPUNIT="./vendor/phpunit/phpunit/phpunit"
+	PHPUNIT="./vendor/bin/phpunit"
 	export CIP_SERVER="http://samlinger.natmus.dk/";
 	export CIP_USER="cip-bitblueprint";
 	export CIP_PASSWORD="wZIgA9MkbAb3";
