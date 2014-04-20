@@ -48,18 +48,15 @@ Run the command to generate the HTML documentation from the source-code, which l
 
 ## Running the tests
 
-Make sure you have the phpunit CLI tool downloaded: http://phpunit.de/getting-started.html
-
 To run the tests first defining the environment variables, then invoke the phpunit tool as follows.
 
+	PHPUNIT="./vendor/phpunit/phpunit/phpunit"
 	export CIP_SERVER="http://samlinger.natmus.dk/";
-	export CIP_USER="...";
-	export CIP_PASSWORD="...";
+	export CIP_USER="cip-bitblueprint";
+	export CIP_PASSWORD="wZIgA9MkbAb3";
 	export CIP_SERVERADDRESS="localhost";
-	export TEST_CATALOG_ALIAS="...";
-	export TEST_CATALOG_NAME="...";
+	export TEST_CATALOG_ALIAS="bitblueprint";
+	export TEST_CATALOG_NAME="Bit Blueprint";
 	export TEST_CATALOG_VIEW="web";
 	export DEBUGGING="true";
-	phpunit --debug --bootstrap vendor/autoload.php .
-
-The runtime option --bootstrap tells PHPUnit to use the composer class-loader.
+	$PHPUNIT --debug tests
