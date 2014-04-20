@@ -34,11 +34,27 @@ Ones downloaded, you can start experimenting, for inspiration look into example.
 
 The source code of the CIP-PHP-Client is annotated with documentation, which is published on http://natmus.demo.bitblueprint.com/cip-php-client/doc/
 
-### Buidling the documentation
+# Contribute to the project
 
-If you make changes to the sourcecode and want to build the documentation, you need a tool such as phpdoc.
+## Installing development requirements
 
-First, make sure you have installed the PhpDocumentor following the installation guide at http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ric_INSTALL.html, essentially telling you to run
+To install the development requirements, make sure you have composer installed, following the guide at https://getcomposer.org/
+
+Once you have composer installed, navigate to the git repository of this project and run
+
+	composer install
+
+## Buidling the documentation
+
+If you make changes to the sourcecode and want to build the documentation, you need a tool such as phpdocumentor (phpdoc), this was installed in the previous step of this guide.
+
+To generate the documentation to a '''doc''' folder, run the shell-script located in the root of the repository
+
+	./generate-documentation.sh
+
+### Manually - If you choose not to use composer
+
+Alternatively you can follow the installation guide at http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ric_INSTALL.html, essentially telling you to run
 
     pear upgrade PhpDocumentor
     
@@ -47,6 +63,8 @@ Run the command to generate the HTML documentation from the source-code, which l
     phpdoc --title "Natmus CIP-PHP-Client" --defaultpackagename "Natmus CIP-PHP-Client" -t doc/ -d src/
 
 ## Running the tests
+
+Again you have to download a tool to run the unit tests, this is phpunit, which is also included when you run the '''composer install''' command.
 
 To run the tests first defining the environment variables, then invoke the phpunit tool as follows.
 
