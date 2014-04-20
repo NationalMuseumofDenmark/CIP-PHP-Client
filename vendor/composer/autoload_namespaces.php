@@ -7,5 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'json' => array($baseDir . '/src'),
+    'Symfony\\Component\\Yaml\\' => array($vendorDir . '/symfony/yaml'),
     'CIP' => array($baseDir . '/src'),
 );
