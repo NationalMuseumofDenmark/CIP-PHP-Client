@@ -48,7 +48,9 @@ Run the command to generate the HTML documentation from the source-code, which l
 
 ## Running the tests
 
-To run the tests first defining the environment variables, then change directory into the tests folder and running the run-tests.php script using the command-line PHP interpreter.
+Make sure you have the phpunit CLI tool downloaded: http://phpunit.de/getting-started.html
+
+To run the tests first defining the environment variables, then invoke the phpunit tool as follows.
 
 	export CIP_SERVER="http://samlinger.natmus.dk/";
 	export CIP_USER="...";
@@ -58,6 +60,6 @@ To run the tests first defining the environment variables, then change directory
 	export TEST_CATALOG_NAME="...";
 	export TEST_CATALOG_VIEW="web";
 	export DEBUGGING="true";
-	cd tests;
-	php run-tests.php;
+	phpunit --debug --bootstrap vendor/autoload.php .
 
+The runtime option --bootstrap tells PHPUnit to use the composer class-loader.
