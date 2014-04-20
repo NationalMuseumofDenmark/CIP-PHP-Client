@@ -42,7 +42,7 @@ To install the development requirements, make sure you have composer installed, 
 
 Once you have composer installed, navigate to the git repository of this project and run
 
-	composer install
+	composer update
 
 ## Buidling the documentation
 
