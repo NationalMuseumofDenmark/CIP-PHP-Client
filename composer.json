@@ -14,13 +14,13 @@
             "email": "kh@bitblueprint.com",
             "homepage": "http://www.bitblueprint.com/",
             "role": "Developer"
-        }
+      }
     ],
     "autoload": {
-      "psr-0": {
-        "CIP": ["src/"],
-        "json": ["src/"]
-      }
+        "psr-0": {
+            "CIP": ["src/"],
+            "json": ["src/"]
+        }
     },
     "require-dev": {
         "phpunit/phpunit": "4.0.16",
@@ -29,6 +29,6 @@
     "require": {
     },
     "suggest": {
-      "salsify/jsonstreamingparser": "Use a streaming JSON parser to improve performance when handling large result sets"
+        "salsify/jsonstreamingparser": "Use a streaming JSON parser to improve performance when handling large result sets"
     }
 }
