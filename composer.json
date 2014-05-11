@@ -1,0 +1,34 @@
+{
+    "name": "national-museum-of-denmark/cip-php-client",
+    "description": "A PHP Client for the Canto Integration Platform",
+    "license" : "MIT",
+    "authors": [
+        {
+            "name": "Jacob Riddersholm Wang @ The National Museum of Denmark",
+            "email": "Jacob.Wang@natmus.dk",
+            "homepage": "http://digital.natmus.dk/",
+            "role": "Initiator"
+        },
+        {
+            "name": "Kræn Hansen @ BIT BLUEPRINT",
+            "email": "kh@bitblueprint.com",
+            "homepage": "http://www.bitblueprint.com/",
+            "role": "Developer"
+      }
+    ],
+    "autoload": {
+        "psr-0": {
+            "CIP": ["src/"],
+            "json": ["src/"]
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "4.0.16",
+        "phpdocumentor/phpdocumentor": "v2.4.0"
+    },
+    "require": {
+    },
+    "suggest": {
+        "salsify/jsonstreamingparser": "Use a streaming JSON parser to improve performance when handling large result sets"
+    }
+}

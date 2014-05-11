@@ -49,6 +49,11 @@ class CURLCaller extends ACaller {
 			}
 		} elseif($response_content_type === 'image/jpeg') {
 			return $response;
+		} elseif($response_status_code === 200 && $response_content_type === false) {
+			// Some answer with a OK status code and no content.
+			return true;
+		} else {
+			throw new \Exception('The CIP service responded with an unknown content type: ' . $response_content_type);
 		}
 	}
 	
