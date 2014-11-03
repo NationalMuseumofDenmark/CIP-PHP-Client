@@ -6,6 +6,24 @@ CIP PHP Client is an independent implementation of a PHP Client for the Canto In
 
 # Getting started!
 
+## Using Composer
+
+Include the "national-museum-of-denmark/cip-php-client" in your composer.json, like so
+
+	{
+		"require": {
+			"national-museum-of-denmark/cip-php-client": "dev-master"
+		},
+		"repositories": [
+			{
+				"type": "vcs",
+				"url":  "git@github.com:NationalMuseumofDenmark/CIP-PHP-Client.git"
+			}
+		]
+	}
+	
+Run 'composer install' to download and install the library into your PHP project.
+
 ## Clone the code onto your machine, running
 
 	git clone https://github.com/NationalMuseumofDenmark/CIP-PHP-Client.git
