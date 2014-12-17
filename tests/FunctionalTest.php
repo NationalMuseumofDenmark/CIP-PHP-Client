@@ -48,6 +48,20 @@ class FunctionalTest extends CIPTest {
 		
 		$this->_client->setDAMCredentials($_SERVER['CIP_USER'], $_SERVER['CIP_PASSWORD'], $_SERVER['CIP_SERVERADDRESS']);
 	}
+
+	public function testCategorySearch() {
+		$category_name = 'Rotationsbilleder';
+		$response = $this->_client->metadata()->search( 'ES', 'web', null, null, 'Categories is Rotationsbilleder' );
+		foreach($response['items'] as $asset) {
+			$found_rotationsbilleder_category = false;
+			foreach($asset['{af4b2e0c-5f6a-11d2-8f20-0000c0e166dc}'] as $category) {
+				if($category['name'] == 'Rotationsbilleder') {
+					$found_rotationsbilleder_category = true;
+				}
+			}
+			$this->assertTrue($found_rotationsbilleder_category);
+		}
+	}
 	
 	public function testMetadata1() {
 		// Opening a session
