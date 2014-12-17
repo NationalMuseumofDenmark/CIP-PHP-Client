@@ -35,6 +35,10 @@ class CURLCaller extends ACaller {
 			throw new \CIP\CIPServersideException( $response, $response_status_code );
 		}
 
+		if($response === false) {
+			throw new \RuntimeException("cURL execution failed - do you have internet?");
+		}
+
 		if($response_content_type === 'application/json;charset=UTF-8') {
 			if($response === false) {
 				throw new \Exception('The cURL call to the service failed: ' . curl_error($this->_curl_handle));

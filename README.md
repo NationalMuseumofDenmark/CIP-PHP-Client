@@ -6,13 +6,27 @@ CIP PHP Client is an independent implementation of a PHP Client for the Canto In
 
 # Getting started!
 
-## Clone the code onto your machine, running
+## Using Composer
 
-	git clone https://github.com/NationalMuseumofDenmark/CIP-PHP-Client.git
+A preferred way of getting  the code into your project, is using the PHP package manager Composer. To install composer, following the guide at https://getcomposer.org/
 
-Or simply download a pre-bundled ZIP-package from http://natmus.demo.bitblueprint.com/cip-php-client/dist/cip-php-client.zip
+Once installed, include the "national-museum-of-denmark/cip-php-client" in your composer.json, like so
+
+	{
+		"require": {
+			"national-museum-of-denmark/cip-php-client": "dev-master"
+		},
+		"repositories": [
+			{
+				"type": "vcs",
+				"url":  "git@github.com:NationalMuseumofDenmark/CIP-PHP-Client.git"
+			}
+		]
+	}
 	
-## Require the CIPClient.php and start experimenting
+Run ´composer install´ to download and install the library into your PHP project, and you should be up and running.
+	
+## Require the autoload.php and start experimenting
 
 Ones downloaded, you can start experimenting, for inspiration look into example.php
 
@@ -38,11 +52,13 @@ The source code of the CIP-PHP-Client is annotated with documentation, which is 
 
 ## Installing development requirements
 
-To install the development requirements, make sure you have composer installed, following the guide at https://getcomposer.org/
+Once you have composer installed, navigate to the git repository of this project, running
 
-Once you have composer installed, navigate to the git repository of this project and run
+	cd ./vendor/national-museum-of-denmark/cip-php-client
 
-	composer install
+and run
+
+	composer install --dev
 
 ## Buidling the documentation
 
@@ -68,7 +84,7 @@ Again you have to download a tool to run the unit tests, this is phpunit, which 
 
 To run the tests first defining the environment variables, then invoke the phpunit tool as follows.
 
-	PHPUNIT="./vendor/phpunit/phpunit/phpunit"
+	PHPUNIT="./vendor/bin/phpunit"
 	export CIP_SERVER="http://samlinger.natmus.dk/";
 	export CIP_USER="cip-bitblueprint";
 	export CIP_PASSWORD="wZIgA9MkbAb3";
